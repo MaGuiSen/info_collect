@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--移动端必须要设置的适配-->
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>Title</title>
+    <link rel="stylesheet" href="css/base.css">
+    <script type="text/javascript" src="./js/jqeury.min.js"></script>
+    <style>
+        body {
+            word-break: break-all;
+            color: #555555;
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 12px;
+            -webkit-font-smoothing: antialiased;
+            -moz-font-smoothing: antialiased;/*兼容火狐*/
+            background-image:url('./image/bg_info.png');
+            background-size: 100%;
+        }
+        div{
+            display: flex;
+            flex-direction: column;
+        }
+        .img_logo{
+            display: block;
+            height:80px;
+            width: 80px;
+            border-radius: 50%;
+            margin: 30px auto;
+        }
+
+        .input_txt{
+            height:40px;
+            width: 80%;
+            background: white;
+            border: 1px solid #eee;
+            margin: 10px auto 0 auto;
+            padding:0 16px;
+            border-radius: 4px;
+        }
+        .input_photo{
+            margin: 10px auto 0 auto;
+            height:40px;
+            width: 80%;
+        }
+        .input_commit{
+            height:40px;
+            width: 80%;
+            margin: 0 auto;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+        .input_commit:hover{
+            background: rgba(255,255,255,0.6);
+        }
+        #photo_result{
+            display: block;
+            margin: 20px auto;
+        }
+        .desc{
+            text-align: center;
+            margin: 10px auto;
+        }
+    </style>
+    <script type="text/javascript">
+        $(function(){
+            var input = document.getElementById("photo_choice");
+            if(typeof FileReader==='undefined'){
+                input.setAttribute('disabled','disabled');
+            }else{
+                input.addEventListener('change',readFile,false);
+            }
+            function readFile(){
+                for(var i=0;i<this.files.length;i++){
+                    if (!input['value'].match(/.jpg|.gif|.png|.bmp|.JPG|.GIF|.PNG|.BMP/i)){　　//判断上传文件格式
+                        return alert("上传的图片格式不正确，请重新选择")
+                    }
+                    var reader = new FileReader();
+                    reader.readAsDataURL(this.files[i]);
+                    reader.onload = function(e){
+                        var img = new Image();
+                        img.src = this.result;
+                        img.id = 'photo_result';
+                        img.onload = function(){
+                            // 打印
+                            alert('width:'+img.width+',height:'+img.height);
+                            img.style.width = 200+'px';
+                            img.style.height = img.height/img.width*200 + 'px';
+                            document.getElementById('body').appendChild(img);  　　//插入dom树
+                        };
+                    }
+                }
+            }
+        });
+    </script>
+</head>
+<body id="body">
+    <img src="./image/logo.jpg" class="img_logo">
+    <div>
+        <input class="input_txt" type="text" placeholder="输入姓名">
+        <input class="input_txt" type="text" placeholder="输入手机">
+        <input  id="photo_choice"  class="input_photo" type="file" placeholder="请选择一张图片" accept="image/*" multiple>
+        <input class="input_commit" type="submit" value="提交"/>
+    </div>
+    <div class="desc"> 本界面由小程序 "菜快来" 提供</div>
+</body>
+</html>
