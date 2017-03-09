@@ -9,30 +9,41 @@
         body {
             word-break: break-all;
             color: #555555;
+            background: #f2f2f2;
             font-family: "Microsoft YaHei", sans-serif;
             font-size: 12px;
             -webkit-font-smoothing: antialiased;
             -moz-font-smoothing: antialiased;/*兼容火狐*/
-            background-image:url('./image/bg_info.png');
             background-size: 100%;
         }
-        div{
-            display: flex;
-            flex-direction: column;
+        /*div{*/
+            /*display: flex;*/
+            /*flex-direction: column;*/
+        /*}*/
+        .search_lay{
+            width: 80%;
+            margin: 20px auto;
+
         }
         .input_txt{
             height:40px;
-            width: 80%;
+            width: 200px;
             background: white;
             border: 1px solid #eee;
             margin: 10px auto 0 auto;
             padding:0 16px;
             border-radius: 4px;
         }
+        .input_date{
+            padding: 10px;
+            height:40px;
+            width: 150px;
+            justify-content: center;
+            align-items:center;
+        }
         .input_commit{
             height:40px;
-            width: 80%;
-            margin: 10px auto;
+            width: 80px;
             border-radius: 4px;
             background: rgba(255,255,255,0.8);
             font-size: 14px;
@@ -40,11 +51,9 @@
         .input_commit:hover{
             background: rgba(255,255,255,0.6);
         }
-        .desc{
-            text-align: center;
-            margin: 10px auto;
-        }
         .item_lay{
+            flex: 1;
+            display: flex;
             width: 100%;
             flex-direction: row;
             align-items:center;
@@ -53,9 +62,34 @@
             padding: 10px;
         }
         .item_all_out{
-            margin: 5px auto;
+            display: flex;
+            flex-direction: column;
+            margin: 0px auto;
             width: 80%;
             background: #ffffff;
+        }
+        .checkbox_img{
+            height: 20px;
+            width: 20px;
+            display: inline-block;
+        }
+        .checkbox_img_lay{
+            display: flex;
+            width: 100px;
+            align-items: center;
+        }
+        .flex_1{
+            flex: 1;
+        }
+        .input_out{
+            height:40px;
+            width: 200px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+        .input_out:hover{
+            background: rgba(255,255,255,0.6);
         }
     </style>
     <script type="text/javascript">
@@ -65,20 +99,32 @@
     </script>
 </head>
 <body id="body">
-    <div>
-        <input class="input_txt" type="text" placeholder="输入手机号查询订单号">
-        <input type=”date”/>
+    <div class="search_lay">
+        <input class="input_txt m_l10" type="text" placeholder="输入用户名或手机号查找">
+        <input class="input_date m_l10" type="date"/>
+        <input class="input_commit m_l10" type="submit" value="查询"/>
+        <input class="input_out m_l10" type="submit" value="到处当前操作数据到excel"/>
     </div>
-    <div class="desc"> 本界面由小程序 "菜快来" 提供</div>
     <div class="item_all_out">
         <div class="item_lay">
-            <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
+            <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png"/>&nbsp;全选</div>
+            <span class="m_l10 flex_1">序号</span>
+            <span class="m_l10 flex_1">时间</span>
+            <span class="m_l10 flex_1">姓名</span>
+            <span class="m_l10 flex_1">电话号码</span>
+            <span class="m_l10 flex_1">用户地址(点击复制)</span>
+            <span class="m_l10 flex_1">图片(url)</span>
         </div>
+    </div>
+    <div class="item_all_out" id="item_list_lay">
         <div class="item_lay">
-            <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
-        </div>
-        <div class="item_lay">
-            <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
+            <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png"/></div>
+            <span class="m_l10 flex_1">1</span>
+            <span class="m_l10 flex_1">时间</span>
+            <span class="m_l10 flex_1">姓名</span>
+            <span class="m_l10 flex_1">电话号码</span>
+            <span class="m_l10 flex_1">用户地址(点击复制)</span>
+            <span class="m_l10 flex_1">图片(url)</span>
         </div>
     </div>
 </body>
