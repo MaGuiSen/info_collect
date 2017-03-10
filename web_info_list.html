@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <title>Title</title>
-    <link rel="stylesheet" href="css/base.css">
-    <script type="text/javascript" src="./js/jqeury.min.js"></script>
+    <link rel='stylesheet' href='css/base.css'>
+    <script type='text/javascript' src='./js/jqeury.min.js'></script>
+    <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
         body {
             word-break: break-all;
             color: #555555;
             background: #f2f2f2;
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: 'Microsoft YaHei', sans-serif;
             font-size: 12px;
             -webkit-font-smoothing: antialiased;
             -moz-font-smoothing: antialiased;/*兼容火狐*/
@@ -92,39 +93,120 @@
             background: rgba(255,255,255,0.6);
         }
     </style>
-    <script type="text/javascript">
-        $(function(){
+    <script type='text/javascript'>
+        var $j = jQuery.noConflict();
+        $j(function(){
+            var input_phone = $j('#input_phone'),
+                input_date = $j('#input_date'),
+                input_commit = $j('#input_commit'),
+                input_out = $j('#input_out'),
+                item_list_lay = $j('#item_list_lay'),
+                check_box_all = $j('#check_box_all');
+            var isAllCheck = false;//全部被选中
+            var currData = [];
+            var searchRequesting = false;
+            input_commit.click(function (event) {
+//                search(input_phone.val(),input_date.val());
+                currData = [{name:'张三'},{name:'里斯'},{name:'小狗'}];
+                createList(currData);
+            });
+            input_out.click(function () {
+                excelOut(currData);
+            });
+            check_box_all.click(function () {
+                if(isCheckAll){
+                    //全部被选中，说明变成全部未选中
+                }else{
+                    //不是全部被选中，说明变成全部选中
+                    for(var i=0;i<currData.length;i++){
+                        currData[i].is_check = true;
+                        var checkBox = $j(`#check_box_${i}`);
+                        checkBox.src=`./image/check_${currData[i].is_check ? 'down':'out'}.png`
+                    }
+                }
+            });
 
+            function search(input_phone,input_date) {
+                if(searchRequesting){
+                    return;
+                }
+                searchRequesting = true;
+                console.log(input_phone,input_date);
+                $.ajax({
+                    type: 'GET',
+                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    success: function(data){
+                        searchRequesting = false;
+                        currData = data.data.rows || [];
+                        createList(currData);
+                    },
+                    error:function(){
+                        searchRequesting = false;
+                        alert('出错了')
+                    }
+                });
+            }
+            function createList(data) {
+                data = data || [];
+                item_list_lay.empty();//清除所有
+                var listAll = [];
+                for(var i=0;i<data.length;i++){
+                    var itemHtml =
+                        `<div class='item_lay'>
+                        <div class='checkbox_img_lay'><img id='check_box_${i}' class='checkbox_img' src='./image/check_${data[i].is_check ? 'down':'out'}.png'/></div>
+                        <span class='m_l10 flex_1'>${i+1}</span>
+                        <span class='m_l10 flex_1'>${data[i].create_time}</span>
+                        <span class='m_l10 flex_1'>${data[i].name}</span>
+                        <span class='m_l10 flex_1'>${data[i].phone}</span>
+                        <span class='m_l10 flex_1'>${data[i].address}</span>
+                        <span class='m_l10 flex_1'>${data[i].url}</span>
+                        </div>`;
+                    listAll.push(itemHtml)
+                }
+                item_list_lay.append(listAll.join(''));
+            }
+            function excelOut(data) {
+                console.log(data);
+                if(!data || !data.length){
+                    alert('无数据，不能导出');
+                    return;
+                }
+                var option={};
+                option.data=data;
+                var toExcel=new ExportJsonExcel(option);
+                toExcel.fileName = ('用户信息');
+                toExcel.saveExcel();
+            }
         });
     </script>
 </head>
-<body id="body">
-    <div class="search_lay">
-        <input class="input_txt m_l10" type="text" placeholder="输入用户名或手机号查找">
-        <input class="input_date m_l10" type="date"/>
-        <input class="input_commit m_l10" type="submit" value="查询"/>
-        <input class="input_out m_l10" type="submit" value="到处当前操作数据到excel"/>
+<body id='body'>
+    <div class='search_lay'>
+        <input id='input_phone' class='input_txt m_l10' type='text' placeholder='输入用户名或手机号查找'>
+        <input id='input_date' class='input_date m_l10' type='date'/>
+        <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
+        <input id='input_out' class='input_out m_l10' type='submit' value='到处当前操作数据到excel'/>
     </div>
-    <div class="item_all_out">
-        <div class="item_lay">
-            <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png"/>&nbsp;全选</div>
-            <span class="m_l10 flex_1">序号</span>
-            <span class="m_l10 flex_1">时间</span>
-            <span class="m_l10 flex_1">姓名</span>
-            <span class="m_l10 flex_1">电话号码</span>
-            <span class="m_l10 flex_1">用户地址(点击复制)</span>
-            <span class="m_l10 flex_1">图片(url)</span>
+    <div class='item_all_out'>
+        <div class='item_lay'>
+            <div class='checkbox_img_lay'><img class='checkbox_img' src='./image/check_out.png' id="check_box_all"/>&nbsp;全选</div>
+            <span class='m_l10 flex_1'>序号</span>
+            <span class='m_l10 flex_1'>时间</span>
+            <span class='m_l10 flex_1'>姓名</span>
+            <span class='m_l10 flex_1'>电话号码</span>
+            <span class='m_l10 flex_1'>用户地址(点击复制)</span>
+            <span class='m_l10 flex_1'>图片(url)</span>
         </div>
     </div>
-    <div class="item_all_out" id="item_list_lay">
-        <div class="item_lay">
-            <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png"/></div>
-            <span class="m_l10 flex_1">1</span>
-            <span class="m_l10 flex_1">时间</span>
-            <span class="m_l10 flex_1">姓名</span>
-            <span class="m_l10 flex_1">电话号码</span>
-            <span class="m_l10 flex_1">用户地址(点击复制)</span>
-            <span class="m_l10 flex_1">图片(url)</span>
+    <div class='item_all_out' id='item_list_lay'>
+        <div class='item_lay'>
+            <div class='checkbox_img_lay'><img class='checkbox_img' src='./image/check_out.png'/></div>
+            <span class='m_l10 flex_1'>1</span>
+            <span class='m_l10 flex_1'>时间</span>
+            <span class='m_l10 flex_1'>姓名</span>
+            <span class='m_l10 flex_1'>电话号码</span>
+            <span class='m_l10 flex_1'>用户地址(点击复制)</span>
+            <span class='m_l10 flex_1'>图片(url)</span>
         </div>
     </div>
 </body>
