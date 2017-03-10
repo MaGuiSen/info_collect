@@ -27,7 +27,7 @@
             height:80px;
             width: 80px;
             border-radius: 50%;
-            margin: 30px auto;
+            margin: 20px auto;
         }
 
         .input_txt{
@@ -35,7 +35,7 @@
             width: 80%;
             background: white;
             border: 1px solid #eee;
-            margin: 10px auto 0 auto;
+            margin: 5px auto 0 auto;
             padding:0 16px;
             border-radius: 4px;
         }
@@ -57,7 +57,7 @@
         }
         #photo_result{
             display: block;
-            margin: 20px auto;
+            margin: 10px auto;
         }
         .desc{
             text-align: center;
@@ -80,15 +80,13 @@
                     var reader = new FileReader();
                     reader.readAsDataURL(this.files[i]);
                     reader.onload = function(e){
-                        var img = new Image();
+                        var img = document.getElementById('photo_result')
                         img.src = this.result;
-                        img.id = 'photo_result';
                         img.onload = function(){
                             // 打印
                             alert('width:'+img.width+',height:'+img.height);
                             img.style.width = 200+'px';
                             img.style.height = img.height/img.width*200 + 'px';
-                            document.getElementById('body').appendChild(img);  　　//插入dom树
                         };
                     }
                 }
@@ -105,5 +103,6 @@
         <input class="input_commit" type="submit" value="提交"/>
     </div>
     <div class="desc"> 本界面由小程序 "菜快来" 提供</div>
+    <img id = 'photo_result'>
 </body>
 </html>
