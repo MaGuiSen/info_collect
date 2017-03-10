@@ -16,6 +16,8 @@
             -webkit-font-smoothing: antialiased;
             -moz-font-smoothing: antialiased;/*兼容火狐*/
             background-size: 100%;
+            background-image: url(http://baike.bdimg.com/static/wiki-lemma/widget/lemma_content/configModule/secondsKnow/resource/img/bg_98de074.png);
+            background-repeat: no-repeat;
         }
         /*div{*/
             /*display: flex;*/
@@ -102,30 +104,32 @@
                 input_out = $j('#input_out'),
                 item_list_lay = $j('#item_list_lay'),
                 check_box_all = $j('#check_box_all');
-            var isAllCheck = false;//全部被选中
             var currData = [];
+            var currChecks = [];
             var searchRequesting = false;
             input_commit.click(function (event) {
-//                search(input_phone.val(),input_date.val());
-                currData = [{name:'张三'},{name:'里斯'},{name:'小狗'}];
+                currData = [{id:1,name:'张三'},{id:2,name:'里斯'},{id:3,name:'小狗'}];
+                //TODO...删除
+                check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                currChecks = []
                 createList(currData);
             });
             input_out.click(function () {
-                excelOut(currData);
+                excelOut(currChecks);
             });
             check_box_all.click(function () {
-                if(isCheckAll){
-                    //全部被选中，说明变成全部未选中
-                }else{
-                    //不是全部被选中，说明变成全部选中
-                    for(var i=0;i<currData.length;i++){
-                        currData[i].is_check = true;
-                        var checkBox = $j(`#check_box_${i}`);
-                        checkBox.src=`./image/check_${currData[i].is_check ? 'down':'out'}.png`
-                    }
-                }
+                //根据选择的长度，来判断是否全选或者全不选
+                setAllCheck(currChecks.length < currData.length)
             });
-
+            function setAllCheck(isAllCheck) {
+                for(var i=0;i<currData.length;i++){
+                    currData[i].is_check = false;
+                    var checkBox = $j(`#check_box_${i}`);
+                    checkBox.attr("src", `./image/check_${isAllCheck?'down':'out'}.png`);
+                }
+                currChecks = isAllCheck ? currData : [];
+                check_box_all.attr("src", `./image/check_${isAllCheck?'down':'out'}.png`);
+            }
             function search(input_phone,input_date) {
                 if(searchRequesting){
                     return;
@@ -138,7 +142,9 @@
                     success: function(data){
                         searchRequesting = false;
                         currData = data.data.rows || [];
-                        createList(currData);
+                        currChecks = [];
+                        check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                        createList();
                     },
                     error:function(){
                         searchRequesting = false;
@@ -146,29 +152,56 @@
                     }
                 });
             }
-            function createList(data) {
-                data = data || [];
+            function createList() {
                 item_list_lay.empty();//清除所有
                 var listAll = [];
-                for(var i=0;i<data.length;i++){
+                for(var i=0;i<currData.length;i++){
                     var itemHtml =
                         `<div class='item_lay'>
-                        <div class='checkbox_img_lay'><img id='check_box_${i}' class='checkbox_img' src='./image/check_${data[i].is_check ? 'down':'out'}.png'/></div>
+                        <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
                         <span class='m_l10 flex_1'>${i+1}</span>
-                        <span class='m_l10 flex_1'>${data[i].create_time}</span>
-                        <span class='m_l10 flex_1'>${data[i].name}</span>
-                        <span class='m_l10 flex_1'>${data[i].phone}</span>
-                        <span class='m_l10 flex_1'>${data[i].address}</span>
-                        <span class='m_l10 flex_1'>${data[i].url}</span>
+                        <span class='m_l10 flex_1'>${currData[i].create_time}</span>
+                        <span class='m_l10 flex_1'>${currData[i].name}</span>
+                        <span class='m_l10 flex_1'>${currData[i].phone}</span>
+                        <span class='m_l10 flex_1'>${currData[i].address}</span>
+                        <span class='m_l10 flex_1'>${currData[i].url}</span>
                         </div>`;
                     listAll.push(itemHtml)
                 }
                 item_list_lay.append(listAll.join(''));
+                for(var i=0;i<currData.length;i++){
+                    var checkBox = $j(`#check_box_${i}`);
+                    checkBox.click(function (event) {
+                        var index = event.currentTarget.dataset.index;
+                        var currCheckBox = $j(`#check_box_${index}`);
+                        var src = currCheckBox.attr("src");
+                        console.log(src == './image/check_out.png')
+                        if(src == './image/check_out.png'){
+                            currCheckBox.attr("src", `./image/check_down.png`);
+                            currChecks.push(currData[index])
+                        }else{
+                            currCheckBox.attr("src", `./image/check_out.png`);
+                            currChecks = arrayRemove(currChecks,currData[index].id);
+                        }
+                    });
+                }
             }
+
+            function arrayRemove(array,id) {
+                array = array || [];
+                var arrayNew = [];
+                for(var i =0;i < array.length;i++){
+                    if(id != array[i].id){
+                        arrayNew.push(array[i]);
+                    }
+                }
+                return arrayNew;
+            }
+
             function excelOut(data) {
                 console.log(data);
                 if(!data || !data.length){
-                    alert('无数据，不能导出');
+                    alert('请选择你要导出的数据');
                     return;
                 }
                 var option={};
@@ -199,7 +232,7 @@
         </div>
     </div>
     <div class='item_all_out' id='item_list_lay'>
-        <div class='item_lay'>
+        <div class="item_lay" style="display: none">
             <div class='checkbox_img_lay'><img class='checkbox_img' src='./image/check_out.png'/></div>
             <span class='m_l10 flex_1'>1</span>
             <span class='m_l10 flex_1'>时间</span>

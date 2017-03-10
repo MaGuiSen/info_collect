@@ -5,6 +5,7 @@
     <title>Title</title>
     <link rel="stylesheet" href="css/base.css">
     <script type="text/javascript" src="./js/jqeury.min.js"></script>
+    <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
         body {
             word-break: break-all;
@@ -94,43 +95,160 @@
         }
     </style>
     <script type="text/javascript">
-        $(function(){
+        var $j = jQuery.noConflict();
+        $j(function(){
 
+
+
+            var input_phone = $j('#input_phone'),
+                input_date = $j('#input_date'),
+                input_commit = $j('#input_commit'),
+                input_out = $j('#input_out'),
+                item_list_lay = $j('#item_list_lay'),
+                check_box_all = $j('#check_box_all'),
+                input_phone_in = $j('#input_phone_in'),
+                input_commit_in = $j('#input_commit_in'),
+                input_order_in = $j('#input_order_in');
+            //导入部分
+            input_commit_in.click(function () {
+                alert("导入");
+            });
+
+            var currData = [];
+            var currChecks = [];
+            var searchRequesting = false;
+            input_commit.click(function (event) {
+                currData = [{id:1,name:'张三'},{id:2,name:'里斯'},{id:3,name:'小狗'}];
+                //TODO...删除
+                check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                currChecks = []
+                createList(currData);
+            });
+            input_out.click(function () {
+                excelOut(currChecks);
+            });
+            check_box_all.click(function () {
+                //根据选择的长度，来判断是否全选或者全不选
+                setAllCheck(currChecks.length < currData.length)
+            });
+            function setAllCheck(isAllCheck) {
+                for(var i=0;i<currData.length;i++){
+                    currData[i].is_check = false;
+                    var checkBox = $j(`#check_box_${i}`);
+                    checkBox.attr("src", `./image/check_${isAllCheck?'down':'out'}.png`);
+                }
+                currChecks = isAllCheck ? currData : [];
+                check_box_all.attr("src", `./image/check_${isAllCheck?'down':'out'}.png`);
+            }
+            function search(input_phone,input_date) {
+                if(searchRequesting){
+                    return;
+                }
+                searchRequesting = true;
+                console.log(input_phone,input_date);
+                $.ajax({
+                    type: 'GET',
+                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    success: function(data){
+                        searchRequesting = false;
+                        currData = data.data.rows || [];
+                        currChecks = [];
+                        check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                        createList();
+                    },
+                    error:function(){
+                        searchRequesting = false;
+                        alert('出错了')
+                    }
+                });
+            }
+            function createList() {
+                item_list_lay.empty();//清除所有
+                var listAll = [];
+                for(var i=0;i<currData.length;i++){
+                    var itemHtml =
+                        `<div class='item_lay'>
+                        <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
+                        <span class='m_l10 flex_1'>${i+1}</span>
+                        <span class='m_l10 flex_1'>${currData[i].create_time}</span>
+                        <span class='m_l10 flex_1'>${currData[i].phone}</span>
+                        <span class='m_l10 flex_1'>${currData[i].order}</span>
+                        </div>`;
+                    listAll.push(itemHtml)
+                }
+                item_list_lay.append(listAll.join(''));
+                for(var i=0;i<currData.length;i++){
+                    var checkBox = $j(`#check_box_${i}`);
+                    checkBox.click(function (event) {
+                        var index = event.currentTarget.dataset.index;
+                        var currCheckBox = $j(`#check_box_${index}`);
+                        var src = currCheckBox.attr("src");
+                        console.log(src == './image/check_out.png')
+                        if(src == './image/check_out.png'){
+                            currCheckBox.attr("src", `./image/check_down.png`);
+                            currChecks.push(currData[index])
+                        }else{
+                            currCheckBox.attr("src", `./image/check_out.png`);
+                            currChecks = arrayRemove(currChecks,currData[index].id);
+                        }
+                    });
+                }
+            }
+
+            function arrayRemove(array,id) {
+                array = array || [];
+                var arrayNew = [];
+                for(var i =0;i < array.length;i++){
+                    if(id != array[i].id){
+                        arrayNew.push(array[i]);
+                    }
+                }
+                return arrayNew;
+            }
+
+            function excelOut(data) {
+                console.log(data);
+                if(!data || !data.length){
+                    alert('请选择你要导出的数据');
+                    return;
+                }
+                var option={};
+                option.data=data;
+                var toExcel=new ExportJsonExcel(option);
+                toExcel.fileName = ('用户信息');
+                toExcel.saveExcel();
+            }
         });
     </script>
 </head>
 <body id="body">
 <div class="search_lay">
-    <input class="input_txt m_l10" type="text" placeholder="输入手机">
-    <input class="input_txt m_l10" type="text" placeholder="输入订单号">
-    <input class="input_commit m_l10" type="submit" value="导入"/>
+    <input id='input_phone_in' class="input_txt m_l10" type="text" placeholder="输入手机">
+    <input id='input_order_in' class="input_txt m_l10" type="text" placeholder="输入订单号">
+    <input id='input_commit_in' class="input_commit m_l10" type="submit" value="导入"/>
 </div>
 <div class="search_lay">
-    <input class="input_txt m_l10" type="text" placeholder="输入手机号查找">
-    <input class="input_date m_l10" type="date"/>
-    <input class="input_commit m_l10" type="submit" value="查询"/>
-    <input class="input_out m_l10" type="submit" value="到处当前操作数据到excel"/>
+    <input id='input_phone' class="input_txt m_l10" type="text" placeholder="输入手机号查找">
+    <input id='input_date' class="input_date m_l10" type="date"/>
+    <input id='input_commit' class="input_commit m_l10" type="submit" value="查询"/>
+    <input id='input_out' class="input_out m_l10" type="submit" value="到处当前操作数据到excel"/>
 </div>
 <div class="item_all_out">
     <div class="item_lay">
-        <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png"/>&nbsp;全选</div>
+        <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png" id="check_box_all"/>&nbsp;全选</div>
         <span class="m_l10 flex_1">序号</span>
         <span class="m_l10 flex_1">时间</span>
-        <span class="m_l10 flex_1">姓名</span>
         <span class="m_l10 flex_1">电话号码</span>
-        <span class="m_l10 flex_1">用户地址(点击复制)</span>
-        <span class="m_l10 flex_1">图片(url)</span>
+        <span class="m_l10 flex_1">订单号</span>
     </div>
 </div>
 <div class="item_all_out" id="item_list_lay">
-    <div class="item_lay">
+    <div class="item_lay" style="display: none">
         <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png"/></div>
-        <span class="m_l10 flex_1">1</span>
+        <span class="m_l10 flex_1">序号</span>
         <span class="m_l10 flex_1">时间</span>
-        <span class="m_l10 flex_1">姓名</span>
         <span class="m_l10 flex_1">电话号码</span>
-        <span class="m_l10 flex_1">用户地址(点击复制)</span>
-        <span class="m_l10 flex_1">图片(url)</span>
+        <span class="m_l10 flex_1">订单号</span>
     </div>
 </div>
 </body>
