@@ -54,6 +54,9 @@
             border-bottom: 1px solid #f2f2f2;
             padding: 10px;
         }
+        .flex_1{
+            flex: 1;
+        }
         .item_all_out{
             margin: 5px auto;
             width: 80%;
@@ -61,25 +64,69 @@
         }
     </style>
     <script type="text/javascript">
-        $(function(){
+        var $j = jQuery.noConflict();
+        $j(function(){
+            var input_phone = $j('#input_phone'),
+                item_list_lay = $j('#item_list_lay'),
+                input_commit = $j('#input_commit');
+            var committing = false;
+            var currData = [];
+
+            input_commit.click(function () {
+                var input_phone_val = input_phone.val();
+                if(!input_phone_val){
+                    alert('请输入电话');
+                    return;
+                }
+                commit(input_phone_val);
+            });
+            function commit(input_phone_val) {
+                if(committing){
+                    return;
+                }
+                committing = true;
+                //TODO。。提示加载中
+                $j.ajax({
+                    type: 'GET',
+                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    success: function(data){
+                        committing = false;
+                        alert('提交成功')
+                        currData = data;
+                        createList();
+                    },
+                    error:function(){
+                        committing = false;
+                        alert('出错了')
+                    }
+                });
+            }
+            function createList() {
+                item_list_lay.empty();//清除所有
+                var listAll = [];
+                for(var i=0;i<currData.length;i++){
+                    var itemHtml =
+                        `<div class='item_lay'>
+                        <span style="width: 20px">${i+1}</span>
+                        <span class='m_l10 flex_1'>${currData[i].phone}</span>
+                        <span class='m_l10 flex_1'>${currData[i].order}</span>
+                        </div>`;
+                    listAll.push(itemHtml)
+                }
+                item_list_lay.append(listAll.join(''));
+            }
 
         });
     </script>
 </head>
 <body id="body">
     <div>
-        <input class="input_txt" type="text" placeholder="输入手机号查询订单号">
-        <input class="input_commit" type="submit" value="查询"/>
+        <input id='input_phone' class="input_txt" type="text" placeholder="输入手机号查询订单号">
+        <input id='input_commit' class="input_commit" type="submit" value="查询"/>
     </div>
     <div class="desc"> 本界面由小程序 "菜快来" 提供</div>
-    <div class="item_all_out">
-        <div class="item_lay">
-            <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
-        </div>
-        <div class="item_lay">
-            <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
-        </div>
-        <div class="item_lay">
+    <div class="item_all_out" id="item_list_lay">
+        <div class="item_lay" style="display:none">
             <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
         </div>
     </div>

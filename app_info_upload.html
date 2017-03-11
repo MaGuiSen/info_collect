@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="UTF-8">
+    <meta charset='UTF-8'>
     <!--移动端必须要设置的适配-->
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1.0'>
     <title>Title</title>
-    <link rel="stylesheet" href="css/base.css">
-    <script type="text/javascript" src="./js/jqeury.min.js"></script>
+    <link rel='stylesheet' href='css/base.css'>
+    <script type='text/javascript' src='./js/jqeury.min.js'></script>
     <style>
         body {
             word-break: break-all;
             color: #555555;
-            font-family: "Microsoft YaHei", sans-serif;
+            font-family: 'Microsoft YaHei', sans-serif;
             font-size: 12px;
             -webkit-font-smoothing: antialiased;
             -moz-font-smoothing: antialiased;/*兼容火狐*/
@@ -39,6 +39,16 @@
             padding:0 16px;
             border-radius: 4px;
         }
+        .input_textarea{
+            height:80px;
+            width: 80%;
+            background: white;
+            border: 1px solid #eee;
+            margin: 5px auto 0 auto;
+            padding:10px 16px;
+            border-radius: 4px;
+            vertical-align: top;
+        }
         .input_photo{
             margin: 10px auto 0 auto;
             height:40px;
@@ -64,24 +74,73 @@
             margin: 10px auto;
         }
     </style>
-    <script type="text/javascript">
-        $(function(){
-            var input = document.getElementById("photo_choice");
+    <script type='text/javascript'>
+        var $j = jQuery.noConflict();
+        $j(function(){
+            var input_phone = $j('#input_phone'),
+                input_name = $j('#input_name'),
+                input_commit = $j('#input_commit'),
+                input_address = $j('#input_address'),
+                photo_choice = $j('#photo_choice');
+            var imgData = '';
+            var committing = false;
+
+            input_commit.click(function () {
+                var input_phone_val = input_phone.val();
+                var input_name_val = input_name.val();
+                var input_address_val = input_address.val();
+                if(!(input_phone_val && input_name_val && input_address_val)){
+                    alert('请输入电话/姓名/联系地址');
+                    return;
+                }
+                if(!imgData){
+                    alert('请选择图片');
+                    return;
+                }
+                commit(input_phone_val,input_name_val,input_address_val);
+            });
+            function commit(input_phone_val,input_name_val,input_address_val) {
+                if(committing){
+                    return;
+                }
+                committing = true;
+                //TODO。。提示加载中
+                $j.ajax({
+                    type: 'GET',
+                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    success: function(data){
+                        committing = false;
+                        alert('提交成功')
+                        input_phone.val('');
+                        input_name.val('');
+                        input_address.val('');
+                        photo_choice.val('');
+                        imgData = '';
+                    },
+                    error:function(){
+                        committing = false;
+                        alert('出错了')
+                    }
+                });
+            }
+
             if(typeof FileReader==='undefined'){
-                input.setAttribute('disabled','disabled');
+                photo_choice.setAttribute('disabled','disabled');
             }else{
-                input.addEventListener('change',readFile,false);
+                photo_choice.addEventListener('change',readFile,false);
             }
             function readFile(){
                 for(var i=0;i<this.files.length;i++){
-                    if (!input['value'].match(/.jpg|.gif|.png|.bmp|.JPG|.GIF|.PNG|.BMP/i)){　　//判断上传文件格式
-                        return alert("上传的图片格式不正确，请重新选择")
+                    if (!photo_choice['value'].match(/.jpg|.gif|.png|.bmp|.JPG|.GIF|.PNG|.BMP/i)){　　//判断上传文件格式
+                        imgData = '';
+                        return alert('上传的图片格式不正确，请重新选择')
                     }
                     var reader = new FileReader();
                     reader.readAsDataURL(this.files[i]);
                     reader.onload = function(e){
                         var img = document.getElementById('photo_result')
                         img.src = this.result;
+                        imgData = this.result;
                         img.onload = function(){
                             // 打印
                             img.style.width = 200+'px';
@@ -93,15 +152,16 @@
         });
     </script>
 </head>
-<body id="body">
-    <img src="./image/logo.jpg" class="img_logo">
+<body id='body'>
+    <img src='./image/logo.jpg' class='img_logo'>
     <div>
-        <input class="input_txt" type="text" placeholder="输入姓名">
-        <input class="input_txt" type="text" placeholder="输入手机">
-        <input  id="photo_choice"  class="input_photo" type="file" placeholder="请选择一张图片" accept="image/*" multiple>
-        <input class="input_commit" type="submit" value="提交"/>
+        <input id='input_name' class='input_txt' type='text' placeholder='输入姓名'>
+        <input id='input_phone' class='input_txt' type='text' placeholder='输入手机'>
+        <textarea id='input_address' class='input_textarea' placeholder='输入地址'></textarea>
+        <input id='photo_choice'  class='input_photo' type='file' placeholder='请选择一张图片' accept='image/*' multiple>
+        <input id='input_commit' class='input_commit' type='submit' value='提交'/>
     </div>
-    <div class="desc"> 本界面由小程序 "菜快来" 提供</div>
+    <div class='desc'> 本界面由小程序 '菜快来' 提供</div>
     <img id = 'photo_result'>
 </body>
 </html>

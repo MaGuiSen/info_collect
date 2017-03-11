@@ -100,6 +100,7 @@
         $j(function(){
             var input_phone = $j('#input_phone'),
                 input_date = $j('#input_date'),
+                input_name = $j('#input_name'),
                 input_commit = $j('#input_commit'),
                 input_out = $j('#input_out'),
                 item_list_lay = $j('#item_list_lay'),
@@ -107,20 +108,12 @@
             var currData = [];
             var currChecks = [];
             var searchRequesting = false;
-            input_commit.click(function (event) {
-                currData = [{id:1,name:'张三'},{id:2,name:'里斯'},{id:3,name:'小狗'}];
-                //TODO...删除
-                check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
-                currChecks = []
-                createList(currData);
-            });
-            input_out.click(function () {
-                excelOut(currChecks);
-            });
+
             check_box_all.click(function () {
                 //根据选择的长度，来判断是否全选或者全不选
                 setAllCheck(currChecks.length < currData.length)
             });
+
             function setAllCheck(isAllCheck) {
                 for(var i=0;i<currData.length;i++){
                     currData[i].is_check = false;
@@ -130,13 +123,24 @@
                 currChecks = isAllCheck ? currData : [];
                 check_box_all.attr("src", `./image/check_${isAllCheck?'down':'out'}.png`);
             }
-            function search(input_phone,input_date) {
+
+            input_commit.click(function (event) {
+                var input_phone_val = input_phone.val();
+                var input_name_val = input_name.val();
+                var input_date_val = input_date.val();
+                if(!input_date_val){
+                    alert('请输入日期');
+                    return;
+                }
+                search(input_phone_val,input_name_val,input_date_val)
+            });
+
+            function search(input_phone_val,input_name_val,input_date_val) {
                 if(searchRequesting){
                     return;
                 }
                 searchRequesting = true;
-                console.log(input_phone,input_date);
-                $.ajax({
+                $j.ajax({
                     type: 'GET',
                     url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
                     success: function(data){
@@ -152,6 +156,7 @@
                     }
                 });
             }
+
             function createList() {
                 item_list_lay.empty();//清除所有
                 var listAll = [];
@@ -198,6 +203,10 @@
                 return arrayNew;
             }
 
+            input_out.click(function () {
+                excelOut(currChecks);
+            });
+
             function excelOut(data) {
                 console.log(data);
                 if(!data || !data.length){
@@ -215,7 +224,8 @@
 </head>
 <body id='body'>
     <div class='search_lay'>
-        <input id='input_phone' class='input_txt m_l10' type='text' placeholder='输入用户名或手机号查找'>
+        <input id='input_phone' class='input_txt m_l10' type='text' placeholder='输入手机号(非必填)'>
+        <input id='input_name' class='input_txt m_l10' type='text' placeholder='输入用户名(非必填)'>
         <input id='input_date' class='input_date m_l10' type='date'/>
         <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
         <input id='input_out' class='input_out m_l10' type='submit' value='到处当前操作数据到excel'/>
