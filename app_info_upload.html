@@ -6,6 +6,8 @@
     <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1.0'>
     <title>Title</title>
     <link rel='stylesheet' href='css/base.css'>
+    <link rel="stylesheet" href="css/mui.min.css">
+    <script type="text/javascript" src="./js/mui.min.js"></script>
     <script type='text/javascript' src='./js/jqeury.min.js'></script>
     <style>
         body {
@@ -18,10 +20,10 @@
             background-image:url('./image/bg_info.png');
             background-size: 100%;
         }
-        div{
-            display: flex;
-            flex-direction: column;
-        }
+        /*div{*/
+            /*display: flex;*/
+            /*flex-direction: column;*/
+        /*}*/
         .img_logo{
             display: block;
             height:80px;
@@ -90,11 +92,11 @@
                 var input_name_val = input_name.val();
                 var input_address_val = input_address.val();
                 if(!(input_phone_val && input_name_val && input_address_val)){
-                    alert('请输入电话/姓名/联系地址');
+                    mui.toast('请输入电话/姓名/联系地址');
                     return;
                 }
                 if(!imgData){
-                    alert('请选择图片');
+                    mui.toast('请选择图片');
                     return;
                 }
                 commit(input_phone_val,input_name_val,input_address_val);
@@ -110,7 +112,7 @@
                     url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
                     success: function(data){
                         committing = false;
-                        alert('提交成功')
+                        mui.toast('提交成功')
                         input_phone.val('');
                         input_name.val('');
                         input_address.val('');
@@ -119,21 +121,22 @@
                     },
                     error:function(){
                         committing = false;
-                        alert('出错了')
+                        mui.toast('出错了')
                     }
                 });
             }
 
             if(typeof FileReader==='undefined'){
-                photo_choice.setAttribute('disabled','disabled');
+                photo_choice.attr('disabled','disabled');
             }else{
-                photo_choice.addEventListener('change',readFile,false);
+                photo_choice.change(readFile);
             }
             function readFile(){
                 for(var i=0;i<this.files.length;i++){
-                    if (!photo_choice['value'].match(/.jpg|.gif|.png|.bmp|.JPG|.GIF|.PNG|.BMP/i)){　　//判断上传文件格式
+                    if (!photo_choice.val().match(/.jpg|.gif|.png|.bmp|.JPG|.GIF|.PNG|.BMP/i)){　　//判断上传文件格式
                         imgData = '';
-                        return alert('上传的图片格式不正确，请重新选择')
+                        mui.toast('上传的图片格式不正确，请重新选择')
+                        return;
                     }
                     var reader = new FileReader();
                     reader.readAsDataURL(this.files[i]);
@@ -154,7 +157,7 @@
 </head>
 <body id='body'>
     <img src='./image/logo.jpg' class='img_logo'>
-    <div>
+    <div style="display: flex; flex-direction: column;position: relative">
         <input id='input_name' class='input_txt' type='text' placeholder='输入姓名'>
         <input id='input_phone' class='input_txt' type='text' placeholder='输入手机'>
         <textarea id='input_address' class='input_textarea' placeholder='输入地址'></textarea>

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
     <title>Title</title>
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/mui.min.css">
+    <script type="text/javascript" src="./js/mui.min.js"></script>
     <script type="text/javascript" src="./js/jqeury.min.js"></script>
     <style>
         body {
@@ -75,7 +77,7 @@
             input_commit.click(function () {
                 var input_phone_val = input_phone.val();
                 if(!input_phone_val){
-                    alert('请输入电话');
+                    mui.toast('请输入电话');
                     return;
                 }
                 commit(input_phone_val);
@@ -91,13 +93,13 @@
                     url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
                     success: function(data){
                         committing = false;
-                        alert('提交成功')
+                        mui.toast('提交成功')
                         currData = data;
                         createList();
                     },
                     error:function(){
                         committing = false;
-                        alert('出错了')
+                        mui.toast('出错了')
                     }
                 });
             }

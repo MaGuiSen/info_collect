@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/mui.min.css">
     <script type="text/javascript" src="./js/jqeury.min.js"></script>
+    <script type="text/javascript" src="./js/mui.min.js"></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
         body {
@@ -117,7 +119,7 @@
                 var input_phone_in_val = input_phone_in.val();
                 var input_order_in_val = input_order_in.val();
                 if(!(input_phone_in_val && input_order_in_val)){
-                    alert('请输入电话/订单号');
+                    mui.toast('请输入电话/订单号');
                     return;
                 }
                 inCommit(input_phone_in_val,input_order_in_val);
@@ -133,11 +135,11 @@
                     url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
                     success: function(data){
                         inRequesting = false;
-                        alert('成功了')
+                        mui.toast('成功了')
                     },
                     error:function(){
                         inRequesting = false;
-                        alert('出错了')
+                        mui.toast('出错了')
                     }
                 });
             }
@@ -181,7 +183,7 @@
                     },
                     error:function(){
                         searchRequesting = false;
-                        alert('出错了')
+                        mui.toast('出错了')
                     }
                 });
             }
@@ -236,7 +238,7 @@
             function excelOut(data) {
                 console.log(data);
                 if(!data || !data.length){
-                    alert('请选择你要导出的数据');
+                    mui.toast('请选择你要导出的数据');
                     return;
                 }
                 var option={};
@@ -258,7 +260,7 @@
     <input id='input_phone' class="input_txt m_l10" type="text" placeholder="输入手机号查找">
     <input id='input_date' class="input_date m_l10" type="date"/>
     <input id='input_commit' class="input_commit m_l10" type="submit" value="查询"/>
-    <input id='input_out' class="input_out m_l10" type="submit" value="到处当前操作数据到excel"/>
+    <input id='input_out' class="input_out m_l10" type="submit" value="导出当前操作数据到excel"/>
 </div>
 <div class="item_all_out">
     <div class="item_lay">
