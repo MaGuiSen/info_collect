@@ -103,6 +103,7 @@
                 input_name = $j('#input_name'),
                 input_commit = $j('#input_commit'),
                 input_del = $j('#input_del'),
+                input_award = $j('#input_award'),
                 input_out = $j('#input_out'),
                 item_list_lay = $j('#item_list_lay'),
                 check_box_all = $j('#check_box_all');
@@ -206,6 +207,7 @@
                             currChecks = arrayRemove(currChecks,currData[index].id);
                         }
                     });
+                    check_box_all.attr("src", `./image/check_${currData.length == currChecks.length?'down':'out'}.png`);
                 }
             }
 
@@ -262,8 +264,11 @@
                     toast('请选择你要删除的数据');
                     return;
                 }
-                showLoading(true);
-                delItem(currChecks);
+                var r=confirm("确定要删除？");
+                if (r==true){
+                    showLoading(true);
+                    delItem(currChecks);
+                }
             });
 
             function delItem(currChecks) {
@@ -303,6 +308,38 @@
                     }
                 });
             }
+
+            //随机抽奖
+            input_award.click(function () {
+                if(!currData || !currData.length){
+                    toast('没有数据，不能进行操作');
+                    return;
+                }
+                var value = prompt('请输入多少人中奖', '50');
+                if(!value){
+                    toast('没有中奖人数，不进行抽奖');
+                    return;
+                }
+                value = parseInt(value);
+                var awardList = getRandomAward(0,currData.length-1,value);//相当于从当前数据抽取
+                console.log(awardList.join(''))
+                reset();
+                for(var i in awardList){
+                    currData[awardList[i]].is_check = true;
+                    var checkBox = $j(`#check_box_${i}`);
+                    checkBox.attr("src", `./image/check_down.png`);
+                    currChecks.push(currData[awardList[i]]);
+                }
+                check_box_all.attr("src", `./image/check_${currData.length == currChecks.length?'down':'out'}.png`);
+                createList();
+            });
+
+            function reset() {
+                currChecks = [];
+                for(var i in currData){
+                    currData[i].is_check = false;
+                }
+            }
         });
     </script>
 </head>
@@ -314,6 +351,7 @@
         <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
         <input id='input_out' class='input_out m_l10' type='submit' value='导出当前操作数据到excel'/>
         <input id='input_del' class='input_out m_l10' type='submit' value='删除当前选择数据'/>
+        <input id='input_award' class='input_out m_l10' type='submit' value='对所有人进行随机抽奖'/>
     </div>
     <div class='item_all_out'>
         <div class='item_lay'>

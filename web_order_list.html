@@ -312,8 +312,11 @@
                     toast('请选择你要删除的数据');
                     return;
                 }
-                showLoading(true);
-                delItem(currChecks);
+                var r=confirm("确定要删除？");
+                if (r==true){
+                    showLoading(true);
+                    delItem(currChecks);
+                }
             });
 
             function delItem(currChecks) {

@@ -102,3 +102,53 @@ function showPhotoPreview(imgUrl) {
         };
     }
 }
+
+function GetRandomNum(Min,Max)
+{
+    var Range = Max - Min;
+    var Rand = Math.random();
+    return(Min + Math.round(Rand * Range));
+}
+
+/**
+ * 随机抽奖
+ * @param min 最小的随机数，一般从0开始
+ * @param max 最大随机数，为数组的长度-1
+ * @param resultNum
+ */
+function getRandomAward(min,max,resultNum){
+    resultNum = parseInt(resultNum);
+    var results = [];
+    if(max < min){
+        return [];
+    }
+    if(resultNum >= max + 1){
+        for(var i=0;i<= max ; i++){
+            results.push(i);
+        }
+        return results;
+    }
+    while(true){
+        if(results.length < resultNum){
+            var num = GetRandomNum(min,max);
+            if(!isExist(results,num)){
+                results.push(num);
+            }
+        }else{
+            break;
+        }
+    }
+    results = results.sort(function(a,b){
+        return a-b}
+    )
+    return results;
+}
+
+function isExist(results,num) {
+    for(var i in results){
+        if(results[i] == num){
+            return true;
+        }
+    }
+    return false;
+}
