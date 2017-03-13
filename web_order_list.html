@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="css/mui.min.css">
     <script type="text/javascript" src="./js/jqeury.min.js"></script>
     <script type="text/javascript" src="./js/mui.min.js"></script>
+    <script type="text/javascript" src="./js/base.js"></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
         body {
@@ -116,23 +117,30 @@
 
             //导入部分
             input_commit_in.click(function () {
-                var input_phone_in_val = input_phone_in.val();
-                var input_order_in_val = input_order_in.val();
-                if(!(input_phone_in_val && input_order_in_val)){
-                    mui.toast('请输入电话/订单号');
-                    return;
-                }
-                inCommit(input_phone_in_val,input_order_in_val);
+                inCommit();
             });
 
-            function inCommit(input_phone_in_val,input_order_in_val) {
+            function inCommit() {
                 if(inRequesting){
                     return;
                 }
+
+                var input_phone_in_val = input_phone_in.val();
+                var input_order_in_val = input_order_in.val();
+                if(!(input_phone_in_val && input_order_in_val)){
+                    mui.toast('请输入电话/快递单号');
+                    return;
+                }
+                var data = {
+                    mobile:input_phone_in_val,
+                    order_no:input_order_in_val,
+                    addr:''
+                };
                 inRequesting = true;
                 $j.ajax({
-                    type: 'GET',
-                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/save.htm?r='+Math.random(),
                     success: function(data){
                         inRequesting = false;
                         mui.toast('成功了')
@@ -160,20 +168,25 @@
             }
 
             input_commit.click(function (event) {
-                var input_phone_val = input_phone.val();
-                var input_date_val = input_date.val();
-                search(input_phone_val,input_date_val);
+                search();
             });
 
-            function search(input_phone,input_date) {
+            function search() {
                 if(searchRequesting){
                     return;
                 }
+                var input_phone_val = input_phone.val();
+                var input_date_val = input_date.val();
                 searchRequesting = true;
-                console.log(input_phone,input_date);
+                var data = {
+                    pageSize:1000000,
+                    currentPage:1,
+                    mobile:input_phone_val
+                };
                 $j.ajax({
-                    type: 'GET',
-                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/list.htm?r='+Math.random(),
                     success: function(data){
                         searchRequesting = false;
                         currData = data.data.rows || [];
@@ -195,9 +208,9 @@
                         `<div class='item_lay'>
                         <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
                         <span class='m_l10 flex_1'>${i+1}</span>
-                        <span class='m_l10 flex_1'>${currData[i].create_time}</span>
-                        <span class='m_l10 flex_1'>${currData[i].phone}</span>
-                        <span class='m_l10 flex_1'>${currData[i].order}</span>
+                        <span class='m_l10 flex_1'>${formatTime(currData[i].create_time)}</span>
+                        <span class='m_l10 flex_1'>${currData[i].mobile}</span>
+                        <span class='m_l10 flex_1'>${currData[i].order_no}</span>
                         </div>`;
                     listAll.push(itemHtml)
                 }
@@ -253,7 +266,7 @@
 <body id="body">
 <div class="search_lay">
     <input id='input_phone_in' class="input_txt m_l10" type="text" placeholder="输入手机(必填)">
-    <input id='input_order_in' class="input_txt m_l10" type="text" placeholder="输入订单号(必填)">
+    <input id='input_order_in' class="input_txt m_l10" type="text" placeholder="输入快递单号(必填)">
     <input id='input_commit_in' class="input_commit m_l10" type="submit" value="导入"/>
 </div>
 <div class="search_lay">
@@ -268,7 +281,7 @@
         <span class="m_l10 flex_1">序号</span>
         <span class="m_l10 flex_1">时间</span>
         <span class="m_l10 flex_1">电话号码</span>
-        <span class="m_l10 flex_1">订单号</span>
+        <span class="m_l10 flex_1">快递单号</span>
     </div>
 </div>
 <div class="item_all_out" id="item_list_lay">
@@ -277,7 +290,7 @@
         <span class="m_l10 flex_1">序号</span>
         <span class="m_l10 flex_1">时间</span>
         <span class="m_l10 flex_1">电话号码</span>
-        <span class="m_l10 flex_1">订单号</span>
+        <span class="m_l10 flex_1">快递单号</span>
     </div>
 </div>
 </body>

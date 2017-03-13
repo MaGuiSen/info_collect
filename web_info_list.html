@@ -5,6 +5,7 @@
     <title>Title</title>
     <link rel='stylesheet' href='css/base.css'>
     <link rel="stylesheet" href="css/mui.min.css">
+    <script type="text/javascript" src="./js/base.js"></script>
     <script type='text/javascript' src='./js/jqeury.min.js'></script>
     <script type="text/javascript" src="./js/mui.min.js"></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
@@ -12,7 +13,6 @@
         body {
             word-break: break-all;
             color: #555555;
-            background: #f2f2f2;
             font-family: 'Microsoft YaHei', sans-serif;
             font-size: 12px;
             -webkit-font-smoothing: antialiased;
@@ -127,25 +127,38 @@
             }
 
             input_commit.click(function (event) {
+                search()
+            });
+
+            function search() {
+                if(searchRequesting){
+                    return;
+                }
+
                 var input_phone_val = input_phone.val();
                 var input_name_val = input_name.val();
                 var input_date_val = input_date.val();
+
                 if(!input_date_val){
                     mui.toast('请输入日期');
                     return;
                 }
-                search(input_phone_val,input_name_val,input_date_val)
-            });
-
-            function search(input_phone_val,input_name_val,input_date_val) {
-                if(searchRequesting){
-                    return;
-                }
+                console.log(input_date_val)
                 searchRequesting = true;
+
+                var data = {
+                    pageSize:100000,
+                    currentPage:1,
+                    name:input_name_val,
+                    mobile:input_phone_val,
+                    date:input_date_val,
+                };
                 $j.ajax({
-                    type: 'GET',
-                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/kwUser/kwUser/list.htm?r='+Math.random(),
                     success: function(data){
+                        debugger
                         searchRequesting = false;
                         currData = data.data.rows || [];
                         currChecks = [];
@@ -167,11 +180,11 @@
                         `<div class='item_lay'>
                         <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
                         <span class='m_l10 flex_1'>${i+1}</span>
-                        <span class='m_l10 flex_1'>${currData[i].create_time}</span>
+                        <span class='m_l10 flex_1'>${formatTime(currData[i].create_time)}</span>
                         <span class='m_l10 flex_1'>${currData[i].name}</span>
-                        <span class='m_l10 flex_1'>${currData[i].phone}</span>
-                        <span class='m_l10 flex_1'>${currData[i].address}</span>
-                        <span class='m_l10 flex_1'>${currData[i].url}</span>
+                        <span class='m_l10 flex_1'>${currData[i].mobile}</span>
+                        <span class='m_l10 flex_1'>${currData[i].addr}</span>
+                        <span class='m_l10 flex_1'>${currData[i].image_url}</span>
                         </div>`;
                     listAll.push(itemHtml)
                 }

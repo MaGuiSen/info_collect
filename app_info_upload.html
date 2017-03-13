@@ -88,38 +88,69 @@
             var committing = false;
 
             input_commit.click(function () {
+                if(committing){
+                    mui.toast('正在操作请稍后');
+                    return;
+                }
+
                 var input_phone_val = input_phone.val();
                 var input_name_val = input_name.val();
                 var input_address_val = input_address.val();
+
                 if(!(input_phone_val && input_name_val && input_address_val)){
                     mui.toast('请输入电话/姓名/联系地址');
                     return;
                 }
-                if(!imgData){
-                    mui.toast('请选择图片');
-                    return;
-                }
-                commit(input_phone_val,input_name_val,input_address_val);
-            });
-            function commit(input_phone_val,input_name_val,input_address_val) {
-                if(committing){
-                    return;
-                }
+//                if(!imgData){
+//                    mui.toast('请选择图片');
+//                    return;
+//                }
+                mui.toast('请稍后');
                 committing = true;
-                //TODO。。提示加载中
+                commitAll('http://www.baidu.com',input_phone_val,input_name_val,input_address_val);
+//                commitImg(imgData,input_phone_val,input_name_val,input_address_val);
+            });
+
+            function commitImg(imgData,input_phone_val,input_name_val,input_address_val) {
+                //先上传图片
                 $j.ajax({
                     type: 'GET',
                     url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
                     success: function(data){
+                        var imgUrl = data;
+                        commitAll(imgUrl,input_phone_val,input_name_val,input_address_val)
+                    },
+                    error:function(e){
+                        console.log(e)
                         committing = false;
+                        mui.toast('出错了')
+                    }
+                });
+            }
+
+            function commitAll(imgUrl,input_phone_val,input_name_val,input_address_val) {
+                var data = {
+                    name:input_name_val,
+                    mobile:input_phone_val,
+                    addr:input_address_val,
+                    image_url:imgUrl
+                };
+
+                $j.ajax({
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/kwUser/kwUser/save.htm?r='+Math.random(),
+                    success: function(data){
                         mui.toast('提交成功')
+                        committing = false;
                         input_phone.val('');
                         input_name.val('');
                         input_address.val('');
                         photo_choice.val('');
                         imgData = '';
                     },
-                    error:function(){
+                    error:function(e){
+                        console.log(e)
                         committing = false;
                         mui.toast('出错了')
                     }
