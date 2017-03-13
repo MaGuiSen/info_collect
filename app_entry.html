@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1.0'>
+    <title>Title</title>
+    <link rel='stylesheet' href='css/self_base.css'>
+    <style>
+        body {
+            word-break: break-all;
+            color: #555555;
+            font-family: 'Microsoft YaHei', sans-serif;
+            font-size: 12px;
+            -webkit-font-smoothing: antialiased;
+            -moz-font-smoothing: antialiased;/*兼容火狐*/
+            background-image:url('./image/bg_info.png');
+            background-size: 100%;
+        }
+
+        .main_lay{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-top: 100px;
+            align-items: center;
+        }
+
+        #tools_user_lay{
+            height: 100px;
+            width: 200px;
+            border-radius: 8px;
+            background-color:#aad7ff ;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            color: white;
+            font-size: 16px
+        }
+        #tools_order_lay{
+            width: 200px;
+            border-radius: 8px;
+            height: 100px;
+            background-color:#ffaad7 ;
+            display: flex;
+            justify-content: center;
+            align-items:center;
+            color: white;
+            font-size: 16px
+        }
+        .desc{
+            text-align: center;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="main_lay">
+        <a id="tools_user_lay" href="./app_info_upload.html">用户信息上传</a>
+        <br>
+        <a id="tools_order_lay" href="./app_order_search.html">快递单号查询</a>
+    </div>
+    <div class='desc'> 本界面由公众号 '掌厨帮' 提供</div>
+</body>
+</html>

@@ -7,8 +7,8 @@ function formatTime(date) {
   var minute = date.getMinutes()
   var second = date.getSeconds()
 
-
-  return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
+  return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute].map(formatNumber).join(':')
+  // return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
 }
 
 function formatNumber(n) {
@@ -18,15 +18,15 @@ function formatNumber(n) {
 
 //合并对象 override是否覆盖相同的属性
 function mergeObj(des, src, override){
-   var result = {}; 
+   var result = {};
    for( var key in des){
       result[key] = des[key];
-   } 
+   }
    for( var key in src){
        if(override || !(key in des)){
            result[key] = src[key];
        }
-   } 
+   }
    return result;
 }
 
@@ -37,12 +37,12 @@ function mergeArray(des, src){
    return des;
 }
 
-function json2Form(json) {  
-    var str = [];  
-    for(var p in json){  
-        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(json[p]));  
-    }  
-    return str.join("&");  
+function json2Form(json) {
+    var str = [];
+    for(var p in json){
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(json[p]));
+    }
+    return str.join("&");
 }
 
 function getUriParams(uri, param) {
@@ -88,11 +88,17 @@ function parseDom(arg) {
 
 };
 
-exports = {
-  toast,
-  formatTime,
-  mergeObj,
-  mergeArray,
-  json2Form,
-  getUriParams
+function showPhotoPreview(imgUrl) {
+    var reader = new FileReader();
+    reader.readAsDataURL(this.files[i]);
+    reader.onload = function(e){
+        var img = document.getElementById('photo_preview_result')
+        img.src = this.result;
+        imgData = this.result;
+        img.onload = function(){
+            // 打印
+            img.style.width = img.width+'px';
+            img.style.height = img.height + 'px';
+        };
+    }
 }

@@ -5,8 +5,8 @@
     <!--移动端必须要设置的适配-->
     <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1.0'>
     <title>Title</title>
-    <link rel='stylesheet' href='css/base.css'>
-    <script type="text/javascript" src="./js/base.js"></script>
+    <link rel='stylesheet' href='css/self_base.css'>
+    <script type="text/javascript" src="./js/self_base.js"></script>
     <script type='text/javascript' src='./js/jqeury.min.js'></script>
     <style>
         body {
@@ -25,14 +25,14 @@
         /*}*/
         .img_logo{
             display: block;
-            height:80px;
-            width: 80px;
+            height:50px;
+            width: 50px;
             border-radius: 50%;
             margin: 20px auto;
         }
 
         .input_txt{
-            height:40px;
+            height:30px;
             width: 80%;
             background: white;
             border: 1px solid #eee;
@@ -41,7 +41,7 @@
             border-radius: 4px;
         }
         .input_textarea{
-            height:80px;
+            height:50px;
             width: 80%;
             background: white;
             border: 1px solid #eee;
@@ -56,7 +56,7 @@
             width: 80%;
         }
         .input_commit{
-            height:40px;
+            height:30px;
             width: 80%;
             margin: 0 auto;
             border-radius: 4px;
@@ -92,22 +92,24 @@
                     return;
                 }
 
-                var input_phone_val = input_phone.val();
-                var input_name_val = input_name.val();
-                var input_address_val = input_address.val();
-
-                if(!(input_phone_val && input_name_val && input_address_val)){
-                    toast('请输入电话/姓名/联系地址');
-                    return;
-                }
+                var r=confirm("请认真核对信息，一日只能上传一次，不能修改");
+                if (r==true){
+                    var input_phone_val = input_phone.val();
+                    var input_name_val = input_name.val();
+                    var input_address_val = input_address.val();
+                    if(!(input_phone_val && input_name_val && input_address_val)){
+                        toast('请输入电话/姓名/联系地址');
+                        return;
+                    }
 //                if(!imgData){
 //                    toast('请选择图片');
 //                    return;
 //                }
-                showLoading(true);
-                committing = true;
-                commitAll('http://www.baidu.com',input_phone_val,input_name_val,input_address_val);
+                    showLoading(true);
+                    committing = true;
+                    commitAll('http://b.hiphotos.baidu.com/baike/w%3D268%3Bg%3D0/sign=92e00c9b8f5494ee8722081f15ce87c3/29381f30e924b899c83ff41c6d061d950a7bf697.jpg',input_phone_val,input_name_val,input_address_val);
 //                commitImg(imgData,input_phone_val,input_name_val,input_address_val);
+                 }
             });
 
             function commitImg(imgData,input_phone_val,input_name_val,input_address_val) {
@@ -153,7 +155,11 @@
                             imgData = '';
                             toast('提交成功')
                         }else{
-                            toast(status+':'+errMsg);
+                            if(status == 301){
+                                toast("一个号码一天只能上传一次");
+                            }else{
+                                toast(status+':'+errMsg);
+                            }
                         }
                     },
                     error:function(e){
@@ -203,7 +209,7 @@
         <input id='photo_choice'  class='input_photo' type='file' placeholder='请选择一张图片' accept='image/*' multiple>
         <input id='input_commit' class='input_commit' type='submit' value='提交'/>
     </div>
-    <div class='desc'> 本界面由小程序 '菜快来' 提供</div>
+    <div class='desc'> 本界面由公众号 '掌厨帮' 提供</div>
     <img id = 'photo_result'>
     <div class="loading_lay" id="loading_lay">
         <div class="loading_main_lay">

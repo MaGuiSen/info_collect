@@ -122,3 +122,18 @@ input{
     height: 30px;
     width: 30px;
 }
+
+.photo_preview_lay{
+    display: none;
+    position: fixed;
+    top:0;
+    bottom:0;
+    z-index: 9999;
+    width: 100%;
+    -webkit-transition: width .3s;
+    transition: width .3s;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.4);
+    overflow: auto;
+}

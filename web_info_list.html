@@ -3,8 +3,8 @@
 <head>
     <meta charset='UTF-8'>
     <title>Title</title>
-    <link rel="stylesheet" href="css/base.css">
-    <script type="text/javascript" src="./js/base.js"></script>
+    <link rel="stylesheet" href="css/self_base.css">
+    <script type="text/javascript" src="./js/self_base.js"></script>
     <script type='text/javascript' src='./js/jqeury.min.js'></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
@@ -29,7 +29,7 @@
 
         }
         .input_txt{
-            height:40px;
+            height:30px;
             width: 200px;
             background: white;
             border: 1px solid #eee;
@@ -39,13 +39,13 @@
         }
         .input_date{
             padding: 10px;
-            height:40px;
+            height:30px;
             width: 150px;
             justify-content: center;
             align-items:center;
         }
         .input_commit{
-            height:40px;
+            height:30px;
             width: 80px;
             border-radius: 4px;
             background: rgba(255,255,255,0.8);
@@ -85,7 +85,7 @@
             flex: 1;
         }
         .input_out{
-            height:40px;
+            height:30px;
             width: 200px;
             border-radius: 4px;
             background: rgba(255,255,255,0.8);
@@ -102,6 +102,7 @@
                 input_date = $j('#input_date'),
                 input_name = $j('#input_name'),
                 input_commit = $j('#input_commit'),
+                input_del = $j('#input_del'),
                 input_out = $j('#input_out'),
                 item_list_lay = $j('#item_list_lay'),
                 check_box_all = $j('#check_box_all');
@@ -109,6 +110,7 @@
             var currData = [];
             var currChecks = [];
             var searchRequesting = false;
+            var delting = false;
 
             check_box_all.click(function () {
                 //根据选择的长度，来判断是否全选或者全不选
@@ -179,12 +181,12 @@
                     var itemHtml =
                         `<div class='item_lay'>
                         <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
-                        <span class='m_l10 flex_1'>${i+1}</span>
+                        <span class='m_l10' style='width: 60px'>${i+1}</span>
                         <span class='m_l10 flex_1'>${formatTime(new Date(currData[i].create_time))}</span>
                         <span class='m_l10 flex_1'>${currData[i].name}</span>
                         <span class='m_l10 flex_1'>${currData[i].mobile}</span>
                         <span class='m_l10 flex_1'>${currData[i].addr}</span>
-                        <span class='m_l10 flex_1'>${currData[i].image_url}</span>
+                        <a class='m_l10 flex_1' style='color:blue' href='${currData[i].image_url}' target="_blank">点击查看</a>
                         </div>`;
                     listAll.push(itemHtml)
                 }
@@ -219,7 +221,24 @@
             }
 
             input_out.click(function () {
-                excelOut(currChecks);
+                if(!currChecks || !currChecks.length){
+                    toast('请选择你要导出的数据');
+                    return;
+                }
+                var dataResult = [];
+                dataResult.push({time:'时间',name:'姓名',mobile:'电话',addr:'地址',imgUrl:'图片地址'});
+                for(var index in currChecks){
+                    var currItem = currChecks[index];
+                    dataResult.push({
+                        time:currItem.mobile?formatTime(new Date(currItem.create_time)):'',
+                        name:currItem.name?currItem.name:'',
+                        mobile:currItem.mobile?currItem.mobile:'',
+                        addr:currItem.addr?currItem.addr:'',
+                        imgUrl:currItem.image_url?currItem.image_url:''
+                    });
+                }
+                //time phone order_no
+                excelOut(dataResult);
             });
 
             function excelOut(data) {
@@ -234,6 +253,56 @@
                 toExcel.fileName = ('用户信息');
                 toExcel.saveExcel();
             }
+
+            input_del.click(function () {
+                if(delting){
+                    return;
+                }
+                if(!currChecks || !currChecks.length){
+                    toast('请选择你要删除的数据');
+                    return;
+                }
+                showLoading(true);
+                delItem(currChecks);
+            });
+
+            function delItem(currChecks) {
+                console.log(JSON.stringify(currChecks[currChecks.length - 1]))
+                var data = {
+                    id: currChecks[currChecks.length - 1]['id'],
+                }
+                $j.ajax({
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/list.htm?r=' + Math.random(),
+                    success: function (data) {
+                        var status = data.code;
+                        var errMsg = data.msg;
+
+                        var popItem = currChecks.pop();//移除掉最後一個
+                        currData = arrayRemove(currData, popItem.id)
+                        createList();
+
+                        if (status != 200 || !currChecks || !currChecks.length) {
+                            showLoading(false);
+                            delting = false;
+                            if (!currChecks || !currChecks.length) {
+                                check_box_all.attr("src", `./image/check_${false ? 'down' : 'out'}.png`);
+                            }
+                            if (status != 200) {
+                                toast(status + ':' + errMsg);
+                            }
+                            return;
+                        }
+                        delItem(currChecks);
+                    },
+                    error: function (e) {
+                        delting = false;
+                        toast('请求出错了');
+                        showLoading(false);
+                    }
+                });
+            }
         });
     </script>
 </head>
@@ -244,11 +313,12 @@
         <input id='input_date' class='input_date m_l10' type='date' value="2017-03-13"/>
         <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
         <input id='input_out' class='input_out m_l10' type='submit' value='导出当前操作数据到excel'/>
+        <input id='input_del' class='input_out m_l10' type='submit' value='删除当前选择数据'/>
     </div>
     <div class='item_all_out'>
         <div class='item_lay'>
             <div class='checkbox_img_lay'><img class='checkbox_img' src='./image/check_out.png' id="check_box_all"/>&nbsp;全选</div>
-            <span class='m_l10 flex_1'>序号</span>
+            <span class='m_l10' style="width: 60px">序号</span>
             <span class='m_l10 flex_1'>时间</span>
             <span class='m_l10 flex_1'>姓名</span>
             <span class='m_l10 flex_1'>电话号码</span>
@@ -273,6 +343,9 @@
             <br>
             <span class="loading_txt">加载中</span>
         </div>
+    </div>
+    <div class="photo_preview_lay" id="photo_preview_lay">
+        <img id = 'photo_preview_result'>
     </div>
 </body>
 </html>

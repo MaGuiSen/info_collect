@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/self_base.css">
     <script type="text/javascript" src="./js/jqeury.min.js"></script>
-    <script type="text/javascript" src="./js/base.js"></script>
+    <script type="text/javascript" src="./js/self_base.js"></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
         body {
@@ -29,7 +29,7 @@
 
         }
         .input_txt{
-            height:40px;
+            height:30px;
             width: 200px;
             background: white;
             border: 1px solid #eee;
@@ -39,13 +39,13 @@
         }
         .input_date{
             padding: 10px;
-            height:40px;
+            height:30px;
             width: 150px;
             justify-content: center;
             align-items:center;
         }
         .input_commit{
-            height:40px;
+            height:30px;
             width: 80px;
             border-radius: 4px;
             background: rgba(255,255,255,0.8);
@@ -85,7 +85,7 @@
             flex: 1;
         }
         .input_out{
-            height:40px;
+            height:30px;
             width: 200px;
             border-radius: 4px;
             background: rgba(255,255,255,0.8);
@@ -102,6 +102,7 @@
                 input_date = $j('#input_date'),
                 input_commit = $j('#input_commit'),
                 input_out = $j('#input_out'),
+                input_del = $j('#input_del'),
                 item_list_lay = $j('#item_list_lay'),
                 check_box_all = $j('#check_box_all'),
                 input_phone_in = $j('#input_phone_in'),
@@ -112,6 +113,7 @@
             var currChecks = [];
             var searchRequesting = false;
             var inRequesting = false;
+            var delting = false;
 
             //导入部分
             input_commit_in.click(function () {
@@ -148,7 +150,11 @@
                         if(status == 200){
                             toast('操作成功')
                         }else{
-                            toast(status+':'+errMsg);
+                            if(status == 301){
+                                toast("一个号码一天只能上传一次，请删除今日已经存在的记录");
+                            }else{
+                                toast(status+':'+errMsg);
+                            }
                         }
                     },
                     error:function(){
@@ -225,7 +231,7 @@
                     var itemHtml =
                         `<div class='item_lay'>
                         <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
-                        <span class='m_l10 flex_1'>${i+1}</span>
+                        <span class='m_l10' style='width: 60px'>${i+1}</span>
                         <span class='m_l10 flex_1'>${formatTime(new Date(currData[i].create_time))}</span>
                         <span class='m_l10 flex_1'>${currData[i].mobile}</span>
                         <span class='m_l10 flex_1'>${currData[i].order_no}</span>
@@ -247,6 +253,7 @@
                             currCheckBox.attr("src", `./image/check_out.png`);
                             currChecks = arrayRemove(currChecks,currData[index].id);
                         }
+                        check_box_all.attr("src", `./image/check_${currData.length == currChecks.length?'down':'out'}.png`);
                     });
                 }
             }
@@ -263,7 +270,24 @@
             }
 
             input_out.click(function () {
-                excelOut(currChecks);
+                //處理需要的字段
+                //標題
+                if(!currChecks || !currChecks.length){
+                    toast('请选择你要导出的数据');
+                    return;
+                }
+                var dataResult = [];
+                dataResult.push({time:'时间',mobile:'电话',order_no:'快递单号'});
+                for(var index in currChecks){
+                    var currItem = currChecks[index];
+                    dataResult.push({
+                        time:currItem.mobile?formatTime(new Date(currItem.create_time)):'',
+                        mobile:currItem.mobile?currItem.mobile:'',
+                        order_no:currItem.order_no?currItem.order_no:''
+                    });
+                }
+                //time phone order_no
+                excelOut(dataResult);
             });
 
             function excelOut(data) {
@@ -275,8 +299,60 @@
                 var option={};
                 option.data=data;
                 var toExcel=new ExportJsonExcel(option);
-                toExcel.fileName = ('用户信息');
+                toExcel.fileName = ('订单信息');
                 toExcel.saveExcel();
+            }
+
+
+            input_del.click(function () {
+                if(delting){
+                    return;
+                }
+                if(!currChecks || !currChecks.length){
+                    toast('请选择你要删除的数据');
+                    return;
+                }
+                showLoading(true);
+                delItem(currChecks);
+            });
+
+            function delItem(currChecks) {
+                console.log(JSON.stringify(currChecks))
+                var data = {
+                    id:currChecks[currChecks.length - 1].id,
+                }
+                $j.ajax({
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/list.htm?r='+Math.random(),
+                    success: function(data){
+                        var status = data.code;
+                        var errMsg = data.msg;
+
+                        var popItem = currChecks.pop();//移除掉最後一個
+                        currData = arrayRemove(currData,popItem.id)
+                        createList();
+
+                        if(status != 200 || !currChecks || !currChecks.length){
+                            showLoading(false);
+                            delting = false;
+                            if(!currChecks || !currChecks.length){
+                                check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                            }
+                            if(status != 200){
+                                toast(status+':'+errMsg);
+                            }
+                            return;
+                        }
+
+                        delItem(currChecks);
+                    },
+                    error:function(e){
+                        delting = false;
+                        toast('请求出错了');
+                        showLoading(false);
+                    }
+                });
             }
         });
     </script>
@@ -288,15 +364,16 @@
     <input id='input_commit_in' class="input_commit m_l10" type="submit" value="导入"/>
 </div>
 <div class="search_lay">
-    <input id='input_phone' class="input_txt m_l10" type="text" placeholder="输入手机号查找">
+    <input id='input_phone' class="input_txt m_l10" type="text" placeholder="输入手机号查找(非必填)">
     <input id='input_date' class="input_date m_l10" type="date" value="2017-03-13"/>
     <input id='input_commit' class="input_commit m_l10" type="submit" value="查询"/>
     <input id='input_out' class="input_out m_l10" type="submit" value="导出当前操作数据到excel"/>
+    <input id='input_del' class="input_out m_l10" type="submit" value="删除当前选择数据"/>
 </div>
 <div class="item_all_out">
     <div class="item_lay">
         <div class="checkbox_img_lay"><img class="checkbox_img" src="./image/check_out.png" id="check_box_all"/>&nbsp;全选</div>
-        <span class="m_l10 flex_1">序号</span>
+        <span class="m_l10" style='width: 60px'>序号</span>
         <span class="m_l10 flex_1">时间</span>
         <span class="m_l10 flex_1">电话号码</span>
         <span class="m_l10 flex_1">快递单号</span>
