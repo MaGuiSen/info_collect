@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/mui.min.css">
     <script type="text/javascript" src="./js/jqeury.min.js"></script>
-    <script type="text/javascript" src="./js/mui.min.js"></script>
     <script type="text/javascript" src="./js/base.js"></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
@@ -128,7 +126,7 @@
                 var input_phone_in_val = input_phone_in.val();
                 var input_order_in_val = input_order_in.val();
                 if(!(input_phone_in_val && input_order_in_val)){
-                    mui.toast('请输入电话/快递单号');
+                    toast('请输入电话/快递单号');
                     return;
                 }
                 var data = {
@@ -136,6 +134,7 @@
                     order_no:input_order_in_val,
                     addr:''
                 };
+                showLoading(true)
                 inRequesting = true;
                 $j.ajax({
                     type: 'POST',
@@ -143,11 +142,19 @@
                     url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/save.htm?r='+Math.random(),
                     success: function(data){
                         inRequesting = false;
-                        mui.toast('成功了')
+                        showLoading(false);
+                        var status = data.code;
+                        var errMsg = data.msg;
+                        if(status == 200){
+                            toast('操作成功')
+                        }else{
+                            toast(status+':'+errMsg);
+                        }
                     },
                     error:function(){
                         inRequesting = false;
-                        mui.toast('出错了')
+                        toast('请求出错了')
+                        showLoading(false);
                     }
                 });
             }
@@ -181,22 +188,33 @@
                 var data = {
                     pageSize:1000000,
                     currentPage:1,
-                    mobile:input_phone_val
+                    mobile:input_phone_val,
+                    time:input_date_val
                 };
+                showLoading(true)
                 $j.ajax({
                     type: 'POST',
                     data,
                     url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/list.htm?r='+Math.random(),
                     success: function(data){
                         searchRequesting = false;
-                        currData = data.data.rows || [];
-                        currChecks = [];
-                        check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
-                        createList();
+                        showLoading(false);
+
+                        var status = data.code;
+                        var errMsg = data.msg;
+                        if(status == 200){
+                            currData = data.data.rows || [];
+                            currChecks = [];
+                            check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                            createList();
+                        }else{
+                            toast(status+':'+errMsg);
+                        }
                     },
-                    error:function(){
+                    error:function(e){
                         searchRequesting = false;
-                        mui.toast('出错了')
+                        toast('请求出错了');
+                        showLoading(false);
                     }
                 });
             }
@@ -208,7 +226,7 @@
                         `<div class='item_lay'>
                         <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
                         <span class='m_l10 flex_1'>${i+1}</span>
-                        <span class='m_l10 flex_1'>${formatTime(currData[i].create_time)}</span>
+                        <span class='m_l10 flex_1'>${formatTime(new Date(currData[i].create_time))}</span>
                         <span class='m_l10 flex_1'>${currData[i].mobile}</span>
                         <span class='m_l10 flex_1'>${currData[i].order_no}</span>
                         </div>`;
@@ -251,7 +269,7 @@
             function excelOut(data) {
                 console.log(data);
                 if(!data || !data.length){
-                    mui.toast('请选择你要导出的数据');
+                    toast('请选择你要导出的数据');
                     return;
                 }
                 var option={};
@@ -271,7 +289,7 @@
 </div>
 <div class="search_lay">
     <input id='input_phone' class="input_txt m_l10" type="text" placeholder="输入手机号查找">
-    <input id='input_date' class="input_date m_l10" type="date"/>
+    <input id='input_date' class="input_date m_l10" type="date" value="2017-03-13"/>
     <input id='input_commit' class="input_commit m_l10" type="submit" value="查询"/>
     <input id='input_out' class="input_out m_l10" type="submit" value="导出当前操作数据到excel"/>
 </div>
@@ -291,6 +309,13 @@
         <span class="m_l10 flex_1">时间</span>
         <span class="m_l10 flex_1">电话号码</span>
         <span class="m_l10 flex_1">快递单号</span>
+    </div>
+</div>
+<div class="loading_lay" id="loading_lay">
+    <div class="loading_main_lay">
+        <img src="./image/load.gif" class="loading_img">
+        <br>
+        <span class="loading_txt">加载中</span>
     </div>
 </div>
 </body>

@@ -70,3 +70,55 @@ input{
 .m_t10{
     margin-top: 10px;
 }
+
+.toast-container {
+    position: fixed;
+    z-index: 9999;
+    bottom: 50px;
+    width: 100%;
+    -webkit-transition: opacity .8s;
+    transition: opacity .8s;
+    opacity: 0
+}
+.toast-container.active {
+    opacity: 1
+}
+.toast-message {
+    font-size: 14px;
+    width: 270px;
+    margin: 5px auto;
+    padding: 5px;
+    text-align: center;
+    color: #000;
+    border-radius: 7px;
+    background-color: #d8d8d8
+}
+
+/*//flex*/
+.loading_lay{
+    display: none;
+    position: fixed;
+    top:0;
+    bottom:0;
+    z-index: 9999;
+    width: 100%;
+    -webkit-transition: width .3s;
+    transition: width .3s;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.4);
+}
+.loading_main_lay{
+    display: flex;
+    height:100px;
+    width: 100px;
+    background: white;
+    border-radius: 8px;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.loading_img{
+    height: 30px;
+    width: 30px;
+}

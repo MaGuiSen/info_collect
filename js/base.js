@@ -59,7 +59,37 @@ function getUriParams(uri, param) {
     return query.substring(iStart, iEnd);//获取第二个参数的值
 }
 
+var c = "active";
+function toast(b) {
+    var d = document.createElement("div");
+    d.classList.add("toast-container"), d.innerHTML = '<div class="toast-message">' + b + "</div>", d.addEventListener("webkitTransitionEnd", function () {
+        d.classList.contains(c) || d.parentNode.removeChild(d)
+    }), document.body.appendChild(d), d.offsetHeight, d.classList.add(c), setTimeout(function () {
+        d.classList.remove(c)
+    }, 2e3)
+}
+
+function showLoading(isShow) {
+    var d = document.getElementById("loading_lay");
+    if(isShow){
+        d.style.display = 'flex';
+    }else{
+        d.style.display = 'none';
+    }
+}
+
+function parseDom(arg) {
+
+    var objE = document.createElement("div");
+
+    objE.innerHTML = arg;
+
+    return objE.childNodes[0];
+
+};
+
 exports = {
+  toast,
   formatTime,
   mergeObj,
   mergeArray,

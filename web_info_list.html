@@ -3,11 +3,9 @@
 <head>
     <meta charset='UTF-8'>
     <title>Title</title>
-    <link rel='stylesheet' href='css/base.css'>
-    <link rel="stylesheet" href="css/mui.min.css">
+    <link rel="stylesheet" href="css/base.css">
     <script type="text/javascript" src="./js/base.js"></script>
     <script type='text/javascript' src='./js/jqeury.min.js'></script>
-    <script type="text/javascript" src="./js/mui.min.js"></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
     <style>
         body {
@@ -107,6 +105,7 @@
                 input_out = $j('#input_out'),
                 item_list_lay = $j('#item_list_lay'),
                 check_box_all = $j('#check_box_all');
+
             var currData = [];
             var currChecks = [];
             var searchRequesting = false;
@@ -138,36 +137,37 @@
                 var input_phone_val = input_phone.val();
                 var input_name_val = input_name.val();
                 var input_date_val = input_date.val();
-
-                if(!input_date_val){
-                    mui.toast('请输入日期');
-                    return;
-                }
-                console.log(input_date_val)
                 searchRequesting = true;
-
+                showLoading(true);
                 var data = {
                     pageSize:100000,
                     currentPage:1,
                     name:input_name_val,
                     mobile:input_phone_val,
-                    date:input_date_val,
+                    time:input_date_val,
                 };
                 $j.ajax({
                     type: 'POST',
                     data,
                     url: 'https://www.cookteching.com/food-sys/api/kwUser/kwUser/list.htm?r='+Math.random(),
                     success: function(data){
-                        debugger
                         searchRequesting = false;
-                        currData = data.data.rows || [];
-                        currChecks = [];
-                        check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
-                        createList();
+                        showLoading(false);
+                        var status = data.code;
+                        var errMsg = data.msg;
+                        if(status == 200){
+                            currData = data.data.rows || [];
+                            currChecks = [];
+                            check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
+                            createList();
+                        }else{
+                            toast(status+':'+errMsg);
+                        }
                     },
                     error:function(){
                         searchRequesting = false;
-                        mui.toast('出错了')
+                        toast('出错了');
+                        showLoading(false);
                     }
                 });
             }
@@ -180,7 +180,7 @@
                         `<div class='item_lay'>
                         <div class='checkbox_img_lay'><img data-index=${i} id='check_box_${i}' class='checkbox_img' src='./image/check_${currData[i].is_check ? 'down':'out'}.png'/></div>
                         <span class='m_l10 flex_1'>${i+1}</span>
-                        <span class='m_l10 flex_1'>${formatTime(currData[i].create_time)}</span>
+                        <span class='m_l10 flex_1'>${formatTime(new Date(currData[i].create_time))}</span>
                         <span class='m_l10 flex_1'>${currData[i].name}</span>
                         <span class='m_l10 flex_1'>${currData[i].mobile}</span>
                         <span class='m_l10 flex_1'>${currData[i].addr}</span>
@@ -225,7 +225,7 @@
             function excelOut(data) {
                 console.log(data);
                 if(!data || !data.length){
-                    mui.toast('请选择你要导出的数据');
+                    toast('请选择你要导出的数据');
                     return;
                 }
                 var option={};
@@ -241,9 +241,9 @@
     <div class='search_lay'>
         <input id='input_phone' class='input_txt m_l10' type='text' placeholder='输入手机号(非必填)'>
         <input id='input_name' class='input_txt m_l10' type='text' placeholder='输入用户名(非必填)'>
-        <input id='input_date' class='input_date m_l10' type='date'/>
+        <input id='input_date' class='input_date m_l10' type='date' value="2017-03-13"/>
         <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
-        <input id='input_out' class='input_out m_l10' type='submit' value='到处当前操作数据到excel'/>
+        <input id='input_out' class='input_out m_l10' type='submit' value='导出当前操作数据到excel'/>
     </div>
     <div class='item_all_out'>
         <div class='item_lay'>
@@ -265,6 +265,13 @@
             <span class='m_l10 flex_1'>电话号码</span>
             <span class='m_l10 flex_1'>用户地址(点击复制)</span>
             <span class='m_l10 flex_1'>图片(url)</span>
+        </div>
+    </div>
+    <div class="loading_lay" id="loading_lay">
+        <div class="loading_main_lay">
+            <img src="./image/load.gif" class="loading_img">
+            <br>
+            <span class="loading_txt">加载中</span>
         </div>
     </div>
 </body>
