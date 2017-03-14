@@ -155,6 +155,9 @@
                             input_address.val('');
                             photo_choice.val('');
                             imgData = '';
+                            var img = document.getElementById('photo_result')
+                            img.style.width = 0+'px';
+
                             toast('提交成功')
                         }else{
                             if(status == 301){
