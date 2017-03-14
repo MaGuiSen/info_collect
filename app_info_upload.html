@@ -100,28 +100,46 @@
                     toast('请输入电话/姓名/联系地址');
                     return;
                 }
+                if(!imgData){
+                    toast('请选择图片');
+                    return;
+                }
 
                 var r=confirm("请认真核对信息，一日只能上传一次，不能修改");
                 if (r==true){
-//                if(!imgData){
-//                    toast('请选择图片');
-//                    return;
-//                }
                     showLoading(true);
                     committing = true;
-                    commitAll('http://b.hiphotos.baidu.com/baike/w%3D268%3Bg%3D0/sign=92e00c9b8f5494ee8722081f15ce87c3/29381f30e924b899c83ff41c6d061d950a7bf697.jpg',input_phone_val,input_name_val,input_address_val);
-//                commitImg(imgData,input_phone_val,input_name_val,input_address_val);
-                 }
+//                    commitAll('http://b.hiphotos.baidu.com/baike/w%3D268%3Bg%3D0/sign=92e00c9b8f5494ee8722081f15ce87c3/29381f30e924b899c83ff41c6d061d950a7bf697.jpg',input_phone_val,input_name_val,input_address_val);
+                    commitImg(imgData,input_phone_val,input_name_val,input_address_val);
+                }
             });
 
             function commitImg(imgData,input_phone_val,input_name_val,input_address_val) {
                 //先上传图片
+                imgData=imgData.replace("data:image/jpg;base64,","");
+                imgData=imgData.replace("data:image/jpeg;base64,","");
+                imgData=imgData.replace("data:image/png;base64,","");
+                imgData=imgData.replace("data:image/gif;base64,","");
+
+                var data={
+                    fileSrc:imgData,
+                    file_name:'kw'
+                }
                 $j.ajax({
-                    type: 'GET',
-                    url: 'https://www.cookteching.com/food-sys/api/album/album/list.htm?location=below&r='+Math.random(),
+                    type: 'POST',
+                    data,
+                    url: 'https://www.cookteching.com/food-sys/api/common/file/uploadBase64.htm?r='+Math.random(),
                     success: function(data){
-                        var imgUrl = data;
-                        commitAll(imgUrl,input_phone_val,input_name_val,input_address_val)
+                        var status = data.code;
+                        var errMsg = data.msg;
+                        if(status == 200){
+                            var imgUrl = data.data;
+                            commitAll(imgUrl,input_phone_val,input_name_val,input_address_val)
+                        }else{
+                            committing = false
+                            showLoading(false);
+                            toast(status+':'+errMsg);
+                        }
                     },
                     error:function(e){
                         console.log(e)

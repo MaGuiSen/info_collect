@@ -105,7 +105,11 @@
                         var errMsg = data.msg;
                         if(status == 200){
                             currData = data.data.rows || [];
-                            createList();
+                            if(!currData.length){
+                                toast('没有数据')
+                            }else{
+                                createList();
+                            }
                         }else{
                             toast(status+':'+errMsg);
                         }
