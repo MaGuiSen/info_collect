@@ -93,15 +93,16 @@
                     return;
                 }
 
+                var input_phone_val = input_phone.val();
+                var input_name_val = input_name.val();
+                var input_address_val = input_address.val();
+                if(!(input_phone_val && input_name_val && input_address_val)){
+                    toast('请输入电话/姓名/联系地址');
+                    return;
+                }
+
                 var r=confirm("请认真核对信息，一日只能上传一次，不能修改");
                 if (r==true){
-                    var input_phone_val = input_phone.val();
-                    var input_name_val = input_name.val();
-                    var input_address_val = input_address.val();
-                    if(!(input_phone_val && input_name_val && input_address_val)){
-                        toast('请输入电话/姓名/联系地址');
-                        return;
-                    }
 //                if(!imgData){
 //                    toast('请选择图片');
 //                    return;
