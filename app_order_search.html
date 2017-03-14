@@ -107,9 +107,8 @@
                             currData = data.data.rows || [];
                             if(!currData.length){
                                 toast('没有数据')
-                            }else{
-                                createList();
                             }
+                            createList();
                         }else{
                             toast(status+':'+errMsg);
                         }

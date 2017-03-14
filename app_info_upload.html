@@ -175,8 +175,11 @@
                             imgData = '';
                             var img = document.getElementById('photo_result')
                             img.style.width = 0+'px';
-
                             toast('提交成功')
+                            var r=confirm("提交成功啦，要不去看看“掌厨帮”为你准备的菜谱？");
+                            if (r==true){
+                                window.location.href=encodeURI('http://www.cookteching.com/foodMenu/home.html');
+                            }
                         }else{
                             if(status == 301){
                                 toast("一个号码一天只能上传一次");

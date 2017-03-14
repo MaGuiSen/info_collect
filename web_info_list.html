@@ -4,7 +4,7 @@
     <meta charset='UTF-8'>
     <title>掌厨帮-PC端用户信息查询</title>
     <link rel="shortcut icon" href="./image/logo_ico.ico">
-    <link rel="stylesheet" href="css/self_base.css">
+    <link rel="stylesheet" href="./css/self_base.css">
     <script type="text/javascript" src="./js/self_base.js"></script>
     <script type='text/javascript' src='./js/jqeury.min.js'></script>
     <script type='text/javascript' src='./js/JsonExportExcel.min.js'></script>
@@ -26,7 +26,7 @@
         /*}*/
         .search_lay{
             width: 80%;
-            margin: 20px auto;
+            margin: 10px auto;
 
         }
         .input_txt{
@@ -166,9 +166,8 @@
                             check_box_all.attr("src", `./image/check_${false?'down':'out'}.png`);
                             if(!currData.length){
                                 toast('没有数据')
-                            }else{
-                                createList();
                             }
+                            createList();
                         }else{
                             toast(status+':'+errMsg);
                         }
@@ -355,7 +354,9 @@
         <input id='input_name' class='input_txt m_l10' type='text' placeholder='输入用户名(非必填)'>
         <input id='input_date' class='input_date m_l10' type='date'/>
         <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
-        <input id='input_out' class='input_out m_l10' type='submit' value='导出当前操作数据到excel'/>
+    </div>
+    <div class='search_lay'>
+        <input id='input_out' class='input_out' type='submit' value='导出当前操作数据到excel'/>
         <input id='input_del' class='input_out m_l10' type='submit' value='删除当前选择数据'/>
         <input id='input_award' class='input_out m_l10' type='submit' value='对所有人进行随机抽奖'/>
     </div>
