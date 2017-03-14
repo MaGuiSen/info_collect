@@ -186,7 +186,7 @@
                         <span class='m_l10 flex_1'>${formatTime(new Date(currData[i].create_time))}</span>
                         <span class='m_l10 flex_1'>${currData[i].name}</span>
                         <span class='m_l10 flex_1'>${currData[i].mobile}</span>
-                        <span class='m_l10 flex_1'>${currData[i].addr}</span>
+                        <span class='m_l10 flex_1' onclick=''>${currData[i].addr}</span>
                         <a class='m_l10 flex_1' style='color:blue' href='${currData[i].image_url}' target="_blank">点击查看</a>
                         </div>`;
                     listAll.push(itemHtml)
@@ -206,8 +206,8 @@
                             currCheckBox.attr("src", `./image/check_out.png`);
                             currChecks = arrayRemove(currChecks,currData[index].id);
                         }
+                        check_box_all.attr("src", `./image/check_${currData.length == currChecks.length?'down':'out'}.png`);
                     });
-                    check_box_all.attr("src", `./image/check_${currData.length == currChecks.length?'down':'out'}.png`);
                 }
             }
 
@@ -279,7 +279,7 @@
                 $j.ajax({
                     type: 'POST',
                     data,
-                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/list.htm?r=' + Math.random(),
+                    url: 'https://www.cookteching.com/food-sys/api/kwUser/kwUser/delete.htm?r=' + Math.random(),
                     success: function (data) {
                         var status = data.code;
                         var errMsg = data.msg;
@@ -347,7 +347,7 @@
     <div class='search_lay'>
         <input id='input_phone' class='input_txt m_l10' type='text' placeholder='输入手机号(非必填)'>
         <input id='input_name' class='input_txt m_l10' type='text' placeholder='输入用户名(非必填)'>
-        <input id='input_date' class='input_date m_l10' type='date' value="2017-03-13"/>
+        <input id='input_date' class='input_date m_l10' type='date'/>
         <input id='input_commit' class='input_commit m_l10' type='submit' value='查询'/>
         <input id='input_out' class='input_out m_l10' type='submit' value='导出当前操作数据到excel'/>
         <input id='input_del' class='input_out m_l10' type='submit' value='删除当前选择数据'/>
@@ -360,7 +360,7 @@
             <span class='m_l10 flex_1'>时间</span>
             <span class='m_l10 flex_1'>姓名</span>
             <span class='m_l10 flex_1'>电话号码</span>
-            <span class='m_l10 flex_1'>用户地址(点击复制)</span>
+            <span class='m_l10 flex_1'>用户地址</span>
             <span class='m_l10 flex_1'>图片(url)</span>
         </div>
     </div>

@@ -327,7 +327,7 @@
                 $j.ajax({
                     type: 'POST',
                     data,
-                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/list.htm?r='+Math.random(),
+                    url: 'https://www.cookteching.com/food-sys/api/kwOrder/kwOrder/delete.htm?r='+Math.random(),
                     success: function(data){
                         var status = data.code;
                         var errMsg = data.msg;
@@ -368,7 +368,7 @@
 </div>
 <div class="search_lay">
     <input id='input_phone' class="input_txt m_l10" type="text" placeholder="输入手机号查找(非必填)">
-    <input id='input_date' class="input_date m_l10" type="date" value="2017-03-13"/>
+    <input id='input_date' class="input_date m_l10" type="date"/>
     <input id='input_commit' class="input_commit m_l10" type="submit" value="查询"/>
     <input id='input_out' class="input_out m_l10" type="submit" value="导出当前操作数据到excel"/>
     <input id='input_del' class="input_out m_l10" type="submit" value="删除当前选择数据"/>
