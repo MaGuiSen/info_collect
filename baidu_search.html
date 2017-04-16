@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <!--移动端必须要设置的适配-->
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>掌厨帮-网盘搜搜</title>
+    <link rel="shortcut icon" href="./image/logo_ico.ico">
+    <link rel='stylesheet' href='css/self_base.css'>
+    <script type="text/javascript" src="./js/self_base.js"></script>
+    <script type="text/javascript" src="./js/jqeury.min.js"></script>
+    <style>
+        body {
+            word-break: break-all;
+            color: #555555;
+            font-family: "Microsoft YaHei", sans-serif;
+            font-size: 12px;
+            -webkit-font-smoothing: antialiased;
+            -moz-font-smoothing: antialiased;/*兼容火狐*/
+        }
+        .main{
+            max-width: 673px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        div{
+            display: flex;
+            flex-direction: column;
+        }
+        .input_txt{
+            height:30px;
+            width: 80%;
+            background: white;
+            border: 1px solid #eee;
+            margin: 10px auto 0 auto;
+            padding:0 16px;
+            border-radius: 4px;
+        }
+        .input_commit{
+            height:30px;
+            width: 80%;
+            margin: 10px auto;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+        .input_commit:hover{
+            background: rgba(255,255,255,0.6);
+        }
+        .desc{
+            text-align: center;
+            margin: 10px auto;
+        }
+        .item_lay{
+            width: 100%;
+            flex-direction: row;
+            align-items:center;
+            font-size: 14px;
+            border-bottom: 1px solid #f2f2f2;
+            padding: 10px;
+        }
+        .flex_1{
+            flex: 1;
+        }
+        .item_all_out{
+            margin: 5px auto;
+            width: 80%;
+            background: #ffffff;
+        }
+
+        .b_item_detial_out{
+            display: flex;
+            flex-direction: row;
+            cursor: pointer;
+        }
+        .b_item_detail_img{
+            width: 120px;
+            max-height: 120px;
+        }
+        .b_item_title{
+            font-weight: 400;
+            font-size: 16pt;
+            line-height: 1.54;
+        }
+        .b_item_detail_txt{
+            margin: 8px;
+            font-size: 14pt;
+            line-height: 1.54;
+            word-wrap: break-word;
+            word-break: break-all;
+            max-height: 80px;
+            overflow: hidden;
+        }
+    </style>
+    <script type="text/javascript">
+        var $j = jQuery.noConflict();
+        $j(function(){
+            var input_phone = $j('#input_phone'),
+                item_list_lay = $j('#item_list_lay'),
+                input_commit = $j('#input_commit');
+            var committing = false;
+            var currData = [];
+
+            input_commit.click(function () {
+                commit();
+            });
+            function commit() {
+                if(committing){
+                    return;
+                }
+                var input_phone_val = input_phone.val();
+                if(!input_phone_val){
+                    toast('请输入搜索词');
+                    return;
+                }
+//                var data={
+//                    pageSize:10000,
+//                    currentPage:1,
+//                    order_no:'',
+//                    mobile:input_phone_val
+//                }
+                committing = true;
+                showLoading(true);
+                $j.ajax({
+                    type: 'GET',
+                    url: `http://cookteching.com/food-sys/api/baidu/yun/find.htm?key=${input_phone_val}&r=`+Math.random(),
+                    success: function(data){
+                        committing = false;
+                        showLoading(false);
+                        var status = data.code;
+                        var errMsg = data.msg;
+                        if(status == 200){
+                            currData = data.data || [];
+                            if(!currData.length){
+                                toast('没有数据')
+                            }
+                            createList();
+                        }else{
+                            toast(status+':'+errMsg);
+                        }
+
+                    },
+                    error:function(e){
+                        committing = false;
+                        toast('出错了')
+                        showLoading(false);
+                    }
+                });
+            }
+
+            function clickItem(url) //回调函数
+            {
+                window.location.href=encodeURI(url);
+            }
+
+            function createList() {
+                item_list_lay.empty();//清除所有
+                var listAll = [];
+                for(var i=0;i<currData.length;i++){
+                    var imgShow = '';
+                    if(currData.richSnippet && currData.richSnippet.cseThumbnail){
+                        imgShow = `<img class="b_item_detail_img" src="currData.richSnippet.cseThumbnail">`;
+                    }
+                    var click = 'onclick="clickItem(\''+currData[i].url}+'\')"';
+                    var itemHtml = `
+                    <div class="b_item_out" ${click}>
+                        <h3 class="b_item_title"><a style="color:#00c;" href="${currData[i].url}">${currData[i].titleNoFormatting}</a></h3>
+                        <div class="b_item_detial_out">
+                            ${imgShow}
+                            <div class="b_item_detail_txt">
+                                ${currData[i].contentNoFormatting}
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                    `;
+                    listAll.push(itemHtml)
+                }
+                item_list_lay.append(listAll.join(''));
+            }
+
+        });
+    </script>
+</head>
+<body id="body">
+<div class="main">
+    <div>
+        <input id='input_phone' class="input_txt" type="text" placeholder="输入手机号查询快递单号">
+        <input id='input_commit' class="input_commit" type="submit" value="查询"/>
+    </div>
+    <div class="desc"> 本界面由小程序 "菜快来" 提供</div>
+    <div class="item_all_out" id="item_list_lay">
+        <div class="item_lay" style="display:none">
+            <span>序号</span><span class="m_l10">时间</span><span class="m_l10">订单号</span>
+        </div>
+    </div>
+    <div class="loading_lay" id="loading_lay">
+        <div class="loading_main_lay">
+            <img src="./image/load.gif" class="loading_img">
+            <br>
+            <span class="loading_txt">加载中</span>
+        </div>
+    </div>
+</div>
+</body>
+</html>
